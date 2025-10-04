@@ -6,6 +6,12 @@
 #include "GameFramework/Character.h"
 #include "MainCharacter.generated.h"
 
+class USpringArmComponent;
+class UCameraComponent;
+class UInputMappingContext;
+class UInputAction;
+struct FInputActionValue;
+
 UCLASS()
 class SURVIVALSHOOTER_API AMainCharacter : public ACharacter
 {
@@ -19,6 +25,16 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	/** MappingContext for player input. */
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputMappingContext* DefaultMappingContext;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* MoveAction;
+
+	void Move(const FInputActionValue& Value);
+
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -29,11 +45,11 @@ public:
 private:
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class USpringArmComponent* CameraBoom;
+	USpringArmComponent* CameraBoom;
 
 	/** Camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class UCameraComponent* Camera;
+	UCameraComponent* Camera;
 
 public:
 	/** Returns CameraBoom **/
