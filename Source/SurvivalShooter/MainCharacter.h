@@ -24,6 +24,9 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	// Called to bind functionality to input
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
 
 	/** MappingContext for player input. */
 	UPROPERTY(EditAnywhere, Category = Input)
@@ -34,13 +37,17 @@ protected:
 
 	void Move(const FInputActionValue& Value);
 
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* JumpAction;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* LookAction;
+
+	void Look(const FInputActionValue& Value);
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 private:
 	/** Camera boom positioning the camera behind the character */
