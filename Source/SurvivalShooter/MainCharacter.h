@@ -45,6 +45,13 @@ protected:
 
 	void Look(const FInputActionValue& Value);
 
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* RunAction;
+
+	void RunStart(const FInputActionValue& Value);
+
+	void RunStop(const FInputActionValue& Value);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -57,6 +64,9 @@ private:
 	/** Camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* Camera;
+
+	float DefaultWalkSpeed;
+	float DefaultRunSpeed;
 
 public:
 	/** Returns CameraBoom **/

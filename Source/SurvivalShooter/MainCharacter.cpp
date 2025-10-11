@@ -11,9 +11,12 @@
 // Sets default values
 AMainCharacter::AMainCharacter()
 {
+	DefaultWalkSpeed = 200.f;
+	DefaultRunSpeed = 350.f;
+
 	GetCharacterMovement()->JumpZVelocity = 700.f;
 	GetCharacterMovement()->AirControl = 0.35f;
-	GetCharacterMovement()->MaxWalkSpeed = 500.f;
+	GetCharacterMovement()->MaxWalkSpeed = DefaultWalkSpeed;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
 
@@ -68,6 +71,9 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		Input->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 
 		Input->BindAction(LookAction, ETriggerEvent::Triggered, this, &AMainCharacter::Look);
+
+		Input->BindAction(RunAction, ETriggerEvent::Started, this, &AMainCharacter::RunStart);
+		Input->BindAction(RunAction, ETriggerEvent::Completed, this, &AMainCharacter::RunStop);
 	}	
 }
 
@@ -103,5 +109,24 @@ void AMainCharacter::Look(const FInputActionValue& Value)
 	{
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
+	}
+}
+
+
+// Called to start running
+void AMainCharacter::RunStart(const FInputActionValue& Value)
+{
+	if (Controller != nullptr)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = DefaultRunSpeed;
+	}
+}
+
+// Called to stop running
+void AMainCharacter::RunStop(const FInputActionValue& Value)
+{
+	if (Controller != nullptr)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = DefaultWalkSpeed;
 	}
 }
