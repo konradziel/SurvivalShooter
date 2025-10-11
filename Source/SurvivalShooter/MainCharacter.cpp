@@ -11,14 +11,20 @@
 // Sets default values
 AMainCharacter::AMainCharacter()
 {
-	DefaultWalkSpeed = 200.f;
-	DefaultRunSpeed = 350.f;
+	DefaultWalkSpeed = 350.f;
+	DefaultRunSpeed = 700.f;
 
 	GetCharacterMovement()->JumpZVelocity = 700.f;
 	GetCharacterMovement()->AirControl = 0.35f;
 	GetCharacterMovement()->MaxWalkSpeed = DefaultWalkSpeed;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->RotationRate = FRotator(0.f, 500.f, 0.f);
+
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
 
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -59,6 +65,7 @@ void AMainCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 }
+
 
 // Called to bind functionality to input
 void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -118,6 +125,7 @@ void AMainCharacter::RunStart(const FInputActionValue& Value)
 {
 	if (Controller != nullptr)
 	{
+		bIsRunning = true;
 		GetCharacterMovement()->MaxWalkSpeed = DefaultRunSpeed;
 	}
 }
@@ -127,6 +135,12 @@ void AMainCharacter::RunStop(const FInputActionValue& Value)
 {
 	if (Controller != nullptr)
 	{
+		bIsRunning = false;
 		GetCharacterMovement()->MaxWalkSpeed = DefaultWalkSpeed;
 	}
+}
+
+bool AMainCharacter::GetRunStatus()
+{
+	return bIsRunning;
 }

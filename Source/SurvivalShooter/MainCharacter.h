@@ -52,6 +52,8 @@ protected:
 
 	void RunStop(const FInputActionValue& Value);
 
+	bool bIsRunning = false;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -73,4 +75,8 @@ public:
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns Camera */
 	FORCEINLINE UCameraComponent* GetCamera() const { return Camera; }
+
+	/** Returns Run status */
+	bool GetRunStatus();
+
 };

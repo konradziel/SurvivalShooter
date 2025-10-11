@@ -28,8 +28,8 @@ void UMainCHAnimInstance::UpdateAnimProperties(float DeltaTime)
 		{
 			bIsAccelareting = false;
 		}
-
 		
+		bIsRunning = MainCharacter->GetRunStatus();
 			 
 	}
 }
