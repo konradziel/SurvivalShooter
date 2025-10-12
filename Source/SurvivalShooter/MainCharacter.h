@@ -12,6 +12,9 @@ class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
 
+class UHealthComponent;
+class USanityComponent;
+
 UCLASS()
 class SURVIVALSHOOTER_API AMainCharacter : public ACharacter
 {
@@ -66,6 +69,12 @@ private:
 	/** Camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* Camera;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Health, meta = (AllowPrivateAccess = "true"))
+	UHealthComponent* HealthComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Health, meta = (AllowPrivateAccess = "true"))
+	USanityComponent* SanityComponent;
 
 	float DefaultWalkSpeed;
 	float DefaultRunSpeed;

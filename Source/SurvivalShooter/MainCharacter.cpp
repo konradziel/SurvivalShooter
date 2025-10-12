@@ -7,6 +7,8 @@
 #include "Camera/CameraComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "public/HealthComponent.h"
+#include "public/SanityComponent.h"
 
 // Sets default values
 AMainCharacter::AMainCharacter()
@@ -39,6 +41,9 @@ AMainCharacter::AMainCharacter()
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Camera is atteched to the end of Boom
 	Camera->bUsePawnControlRotation = false; // Camera wont rotate relatively to Boom
+
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
+	SanityComponent = CreateDefaultSubobject<USanityComponent>(TEXT("SanityComponent"));
 }
 
 // Called when the game starts or when spawned
