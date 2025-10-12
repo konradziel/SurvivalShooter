@@ -22,7 +22,7 @@ class SURVIVALSHOOTER_API USanityComponent : public UActorComponent
 	float MaxSanity;
 
 	UPROPERTY()
-	float SanityDrainRate = 3.0f;
+	float SanityDrainRate = 0.05f;
 
 public:	
 	// Sets default values for this component's properties

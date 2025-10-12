@@ -22,7 +22,7 @@ void USanityComponent::BeginPlay()
 		SanityTimerHandle,
 		this,
 		&USanityComponent::DecreaseSanity,
-		3600.0f,
+		60.0f,
 		true
 	);
 }
@@ -43,16 +43,18 @@ void USanityComponent::UpdateSanityOnSleep(int SleepTime)
 	Sanity = FMath::Clamp(Sanity, 0.0f, MaxSanity);
 
 	OnSanityChanged.Broadcast(Sanity, MaxSanity);
-
-	if (Sanity <= 0.0f)
-	{
-		OnSanityDepleted.Broadcast();
-	}
 }
 
 void USanityComponent::DecreaseSanity()
 {
 	Sanity = FMath::Clamp(Sanity - SanityDrainRate, 0.0f, MaxSanity);
+
+	OnSanityChanged.Broadcast(Sanity, MaxSanity);
+
+	if (Sanity <= 0.0f)
+	{
+		OnSanityDepleted.Broadcast();
+	}
 }
 
 
