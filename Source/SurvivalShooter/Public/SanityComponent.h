@@ -21,6 +21,7 @@ class SURVIVALSHOOTER_API USanityComponent : public UActorComponent
 	UPROPERTY(EditDefaultsOnly, Category = "Default")
 	float MaxSanity;
 
+	// Drain rate in one second
 	UPROPERTY()
 	float SanityDrainRate = 0.05f;
 

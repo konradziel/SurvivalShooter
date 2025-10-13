@@ -37,9 +37,11 @@ float USanityComponent::GetMaxSanity() const
 	return MaxSanity;
 }
 
+// Sleep time should be minutes of world time
+// Mine 24h is 30m in game
 void USanityComponent::UpdateSanityOnSleep(int SleepTime)
 {
-	Sanity = SleepTime * 10;
+	Sanity = SleepTime * 11;
 	Sanity = FMath::Clamp(Sanity, 0.0f, MaxSanity);
 
 	OnSanityChanged.Broadcast(Sanity, MaxSanity);
