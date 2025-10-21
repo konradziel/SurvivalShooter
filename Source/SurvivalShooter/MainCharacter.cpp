@@ -7,8 +7,11 @@
 #include "Camera/CameraComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "public/HealthComponent.h"
-#include "public/SanityComponent.h"
+#include "Public/HealthComponent.h"
+#include "Public/SanityComponent.h"
+#include "Public/Item.h"
+#include "Components/WidgetComponent.h"
+
 
 // Sets default values
 AMainCharacter::AMainCharacter()
@@ -39,7 +42,7 @@ AMainCharacter::AMainCharacter()
 
 	// Create a camera that attaches to Boom
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-	Camera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Camera is atteched to the end of Boom
+	Camera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Camera is attached to the end of Boom
 	Camera->bUsePawnControlRotation = false; // Camera wont rotate relatively to Boom
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
@@ -69,6 +72,15 @@ void AMainCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	FHitResult ItemUnderCrosshair;
+	IsUnderCrosshair(ItemUnderCrosshair);
+	if (ItemUnderCrosshair.bBlockingHit)
+	{
+		AItem* HitItem = Cast<AItem>(ItemUnderCrosshair.GetActor());
+		if (HitItem && HitItem->GetPickUpWidget()) {
+			HitItem->GetPickUpWidget()->SetVisibility(true);
+		}
+	}
 }
 
 
@@ -148,4 +160,40 @@ void AMainCharacter::RunStop(const FInputActionValue& Value)
 bool AMainCharacter::GetRunStatus()
 {
 	return bIsRunning;
+}
+
+bool AMainCharacter::IsUnderCrosshair(FHitResult& OutHitResult)
+{
+	FVector2D ViewportSize;
+	if (GEngine && GEngine->GameViewport)
+	{
+		GEngine->GameViewport->GetViewportSize(ViewportSize);
+	}
+
+	FVector2D CrosshairLocation(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
+	FVector CrosshairWorldPosition;
+	FVector CrosshairWorldDirection;
+
+	bool bScreenToWorld = UGameplayStatics::DeprojectScreenToWorld(
+		UGameplayStatics::GetPlayerController(this, 0),
+		CrosshairLocation,
+		CrosshairWorldPosition,
+		CrosshairWorldDirection);
+
+	if (bScreenToWorld)
+	{
+		const FVector Start{ CrosshairWorldPosition };
+		const FVector End{ Start + CrosshairWorldDirection * 50'000.f };
+		GetWorld()->LineTraceSingleByChannel(
+			OutHitResult,
+			Start,
+			End,
+			ECollisionChannel::ECC_Visibility);
+		if (OutHitResult.bBlockingHit)
+		{
+			return true;
+		}
+	}
+
+	return false;
 }

@@ -13,9 +13,14 @@ AItem::AItem()
 
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
 	CollisionBox->SetupAttachment(ItemMesh);
+	CollisionBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	CollisionBox->SetCollisionResponseToChannel(
+		ECollisionChannel::ECC_Visibility, 
+		ECollisionResponse::ECR_Block);
 
 	PickUpWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("PickUpWidget"));
 	PickUpWidget->SetupAttachment(ItemMesh);
+	PickUpWidget->SetVisibility(false);
 }
 
 // Called when the game starts or when spawned

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Engine.h"
 #include "MainCharacter.generated.h"
 
 class USpringArmComponent;
@@ -78,6 +79,8 @@ private:
 
 	float DefaultWalkSpeed;
 	float DefaultRunSpeed;
+
+	bool IsUnderCrosshair(FHitResult& OutHitResult);
 
 public:
 	/** Returns CameraBoom **/
