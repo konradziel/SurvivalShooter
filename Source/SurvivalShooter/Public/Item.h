@@ -18,6 +18,11 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties")
+	int32 Quantity = 1;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties")
+	int32 MaxStackQuantity = 1;
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
@@ -31,4 +36,6 @@ private:
 
 public:
 	FORCEINLINE UWidgetComponent* GetPickUpWidget() const { return PickUpWidget; };
+	FORCEINLINE int32 GetItemQuantity() const { return Quantity; };
+	FORCEINLINE int32 GetItemMaxStackQuantity() const { return MaxStackQuantity; };
 };
