@@ -9,7 +9,6 @@
 #include "EnhancedInputSubsystems.h"
 #include "Public/HealthComponent.h"
 #include "Public/SanityComponent.h"
-#include "Public/Item.h"
 #include "Components/WidgetComponent.h"
 
 
@@ -76,9 +75,17 @@ void AMainCharacter::Tick(float DeltaTime)
 	IsUnderCrosshair(ItemUnderCrosshair);
 	if (ItemUnderCrosshair.bBlockingHit)
 	{
-		AItem* HitItem = Cast<AItem>(ItemUnderCrosshair.GetActor());
-		if (HitItem && HitItem->GetPickUpWidget()) {
+		HitItem = Cast<AItem>(ItemUnderCrosshair.GetActor());
+
+		if ((HitItem != LastHitItem) && (LastHitItem && LastHitItem->GetPickUpWidget())) 
+		{
+			LastHitItem->GetPickUpWidget()->SetVisibility(false);
+		}
+
+		if (HitItem && HitItem->GetPickUpWidget())
+		{
 			HitItem->GetPickUpWidget()->SetVisibility(true);
+			LastHitItem = HitItem;
 		}
 	}
 }

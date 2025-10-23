@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Engine.h"
+#include "Public/Item.h"
 #include "MainCharacter.generated.h"
 
 class USpringArmComponent;
@@ -82,6 +83,9 @@ private:
 
 	bool IsUnderCrosshair(FHitResult& OutHitResult);
 
+	AItem* LastHitItem = nullptr;
+	AItem* HitItem = nullptr;
+	
 public:
 	/** Returns CameraBoom **/
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
