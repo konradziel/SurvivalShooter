@@ -5,7 +5,7 @@
 #include "Item.h"
 #include "EquipmentComponent.generated.h"
 
-USTRUCT(BleprintType)
+USTRUCT(BlueprintType)
 struct FEquipmentSlot
 {
 	GENERATED_BODY()
@@ -27,7 +27,7 @@ struct FEquipmentSlot
 	}
 };
 
-USTRUCT(BleprintType)
+USTRUCT(BlueprintType)
 struct FPickupResult
 {
 	GENERATED_BODY()
