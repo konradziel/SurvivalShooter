@@ -1,6 +1,8 @@
 #include "Item.h"
 #include "Components/BoxComponent.h"
 #include "Components/WidgetComponent.h"
+#include "MainCharacter.h"
+#include "EquipmentComponent.h"
 
 // Sets default values
 AItem::AItem()
@@ -28,5 +30,45 @@ void AItem::BeginPlay()
 {
 	Super::BeginPlay();
 	
+}
+
+bool AItem::CanBePickedUp() const
+{
+	// TODO: Add conditions
+	return true;
+}
+
+void AItem::PickUpItem()
+{
+	if (!CanBePickedUp())
+	{
+		return;
+	}
+
+	APawn* Player = GetWorld()->GetFirstPlayerController()->GetPawn();
+	if (AMainCharacter* MainCharacter = Cast<AMainCharacter>(Player))
+	{
+		UEquipmentComponent* EquipmentComponent = MainCharacter->FindComponentByClass<UEquipmentComponent>();
+		if (EquipmentComponent && EquipmentComponent->AddItem(this, Quantity).bSuccess)
+		{
+			OnPickup();
+		}
+	}
+}
+
+void AItem::OnPickup()
+{
+	// Hide
+	SetActorHiddenInGame(true);
+	SetActorEnableCollision(false);
+
+	// Destroy after delay
+	FTimerHandle DestroyTimer;
+	GetWorldTimerManager().SetTimer(DestroyTimer, this, &AItem::DestroySelf, 0.1f, false);
+}
+
+void AItem::DestroySelf()
+{
+	Destroy();
 }
 

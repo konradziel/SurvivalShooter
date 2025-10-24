@@ -18,11 +18,33 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+	// Properties
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties")
+	FString ItemName = TEXT("Unknown");
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties")
+	UTexture2D* ItemIcon;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties")
 	int32 Quantity = 1;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties")
 	int32 MaxStackQuantity = 1;
+
+	// Pickup functionality
+	UFUNCTION(BlueprintCallable)
+	bool CanBePickedUp() const;
+
+	UFUNCTION(BlueprintCallable)
+	void PickUpItem();
+
+	// Override to customize pickup behavior
+	virtual void OnPickup();
+
+	UFUNCTION(BlueprintCallable)
+	void DestroySelf();
+
+
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
