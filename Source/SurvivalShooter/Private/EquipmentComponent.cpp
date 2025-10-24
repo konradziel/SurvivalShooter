@@ -22,10 +22,11 @@ void UEquipmentComponent::BeginPlay()
 
 FPickupResult UEquipmentComponent::AddItem(AItem* ItemToAdd, int32 Quantity)
 {
-	if (!ItemToAdd || Quantity <= 0)
-	{
-		return FPickupResult(false, 0);
-	}
+	// TODO: Redundant we check it in HasSpaceForItem
+	// if (!ItemToAdd || Quantity <= 0)
+	//	{
+	//		return FPickupResult(false, 0);
+	//	}
 
 	if (!HasSpaceForItem(ItemToAdd, Quantity))
 	{
@@ -33,7 +34,7 @@ FPickupResult UEquipmentComponent::AddItem(AItem* ItemToAdd, int32 Quantity)
 	}
 
 	// Adding to stack
-	for (int32 i = 0; i < MaxSlots; i++)
+	for (int32 i = 0; i < EquipmentSlots.Num(); i++)
 	{
 		if (!EquipmentSlots[i].bIsEmpty && EquipmentSlots[i].Item == ItemToAdd && EquipmentSlots[i].Quantity < ItemToAdd->GetItemMaxStackQuantity())
 		{
@@ -140,12 +141,33 @@ FEquipmentSlot UEquipmentComponent::GetSlot(int32 SlotIndex) const
 
 int32 UEquipmentComponent::GetFirstEmptySlot() const
 {
-	return false;
+	for (int32 i = 0; i < EquipmentSlots.Num(); i++)
+	{
+		if (EquipmentSlots[i].bIsEmpty)
+		{
+			return i;
+		}
+	}
+	return -1;
 }
 
 bool UEquipmentComponent::HasSpaceForItem(AItem* Item, int32 Quantity) const
 {
-	return false;
+	if (!Item || Quantity <= 0)
+	{
+		return false;
+	}
+
+	// Check for stack
+	for (const FEquipmentSlot& Slot : EquipmentSlots)
+	{
+		if (!Slot.bIsEmpty && Slot.Item == Item && Slot.Quantity < Item->GetItemMaxStackQuantity())
+		{
+			return true;
+		}
+	}
+
+	return GetFirstEmptySlot() != -1;
 }
 
 
