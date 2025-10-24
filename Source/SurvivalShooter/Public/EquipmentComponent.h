@@ -27,6 +27,24 @@ struct FEquipmentSlot
 	}
 };
 
+USTRUCT(BleprintType)
+struct FPickupResult
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bSuccess = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 QuantityAdded = 0;
+
+	FPickupResult(bool bSuccess, int32 QuantityAdded)
+	{
+		bSuccess = bSuccess;
+		QuantityAdded = QuantityAdded;
+	}
+};
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInventoryChanged, int32, SlotIndex);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -51,7 +69,7 @@ protected:
 
 public:
 	UFUNCTION(BlueprintCallable)
-	bool AddItem(AItem* ItemToAdd, int32 Quantity = 1);
+	FPickupResult AddItem(AItem* ItemToAdd, int32 Quantity = 1);
 
 	UFUNCTION(BlueprintCallable)
 	bool RemoveItem(int32 SlotIndex, int32 Quantity = 1);
