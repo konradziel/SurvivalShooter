@@ -16,6 +16,7 @@ struct FInputActionValue;
 
 class UHealthComponent;
 class USanityComponent;
+class UEquipmentComponent;
 
 UCLASS()
 class SURVIVALSHOOTER_API AMainCharacter : public ACharacter
@@ -59,6 +60,11 @@ protected:
 
 	bool bIsRunning = false;
 
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* PickupAction;
+
+	void PickupItem();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -77,6 +83,10 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Health, meta = (AllowPrivateAccess = "true"))
 	USanityComponent* SanityComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment, meta = (AllowPrivateAccess = "true"))
+	UEquipmentComponent* EquipmentComponent;
+
 
 	float DefaultWalkSpeed;
 	float DefaultRunSpeed;

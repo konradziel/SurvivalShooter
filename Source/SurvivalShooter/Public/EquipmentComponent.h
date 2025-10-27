@@ -38,10 +38,16 @@ struct FPickupResult
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 QuantityAdded = 0;
 
-	FPickupResult(bool bSuccess, int32 QuantityAdded)
+	FPickupResult()
 	{
-		bSuccess = bSuccess;
-		QuantityAdded = QuantityAdded;
+		bSuccess = false;
+		QuantityAdded = 0;
+	}
+
+	FPickupResult(bool InSuccess, int32 InQuantityAdded)
+	{
+		bSuccess = InSuccess;
+		QuantityAdded = InQuantityAdded;
 	}
 };
 

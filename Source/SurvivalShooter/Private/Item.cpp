@@ -1,7 +1,7 @@
 #include "Item.h"
 #include "Components/BoxComponent.h"
 #include "Components/WidgetComponent.h"
-#include "MainCharacter.h"
+#include "../MainCharacter.h"
 #include "EquipmentComponent.h"
 
 // Sets default values
@@ -40,17 +40,23 @@ bool AItem::CanBePickedUp() const
 
 void AItem::PickUpItem()
 {
+	UE_LOG(LogTemp, Warning, TEXT("PickUpItem() called for item: %s"), *ItemName);
+
 	if (!CanBePickedUp())
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Item cannot be picked up"));
 		return;
 	}
 
 	APawn* Player = GetWorld()->GetFirstPlayerController()->GetPawn();
+	UE_LOG(LogTemp, Warning, TEXT("Player pawn found: %s"), Player ? *Player->GetName() : TEXT("NULL"));
+
 	if (AMainCharacter* MainCharacter = Cast<AMainCharacter>(Player))
 	{
 		UEquipmentComponent* EquipmentComponent = MainCharacter->FindComponentByClass<UEquipmentComponent>();
 		if (EquipmentComponent && EquipmentComponent->AddItem(this, Quantity).bSuccess)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Pickup successful, calling OnPickup()"));
 			OnPickup();
 		}
 	}

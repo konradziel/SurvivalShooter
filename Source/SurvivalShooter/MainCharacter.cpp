@@ -9,6 +9,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "Public/HealthComponent.h"
 #include "Public/SanityComponent.h"
+#include "Public/EquipmentComponent.h"
 #include "Components/WidgetComponent.h"
 
 
@@ -46,6 +47,8 @@ AMainCharacter::AMainCharacter()
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
 	SanityComponent = CreateDefaultSubobject<USanityComponent>(TEXT("SanityComponent"));
+
+	EquipmentComponent = CreateDefaultSubobject<UEquipmentComponent>(TEXT("EquipmentComponent"));
 }
 
 // Called when the game starts or when spawned
@@ -65,6 +68,7 @@ void AMainCharacter::BeginPlay()
 		}
 	}
 }
+
 
 // Called every frame
 void AMainCharacter::Tick(float DeltaTime)
@@ -105,6 +109,8 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 		Input->BindAction(RunAction, ETriggerEvent::Started, this, &AMainCharacter::RunStart);
 		Input->BindAction(RunAction, ETriggerEvent::Completed, this, &AMainCharacter::RunStop);
+
+		Input->BindAction(PickupAction, ETriggerEvent::Started, this, &AMainCharacter::PickupItem);
 	}	
 }
 
@@ -167,6 +173,19 @@ void AMainCharacter::RunStop(const FInputActionValue& Value)
 bool AMainCharacter::GetRunStatus()
 {
 	return bIsRunning;
+}
+
+void AMainCharacter::PickupItem()
+{
+	UE_LOG(LogTemp, Warning, TEXT("PickupItem() called in MainCharacter"));
+	UE_LOG(LogTemp, Warning, TEXT("HitItem is: %s"), HitItem ? *HitItem->GetName() : TEXT("NULL"));
+
+	if (HitItem && HitItem->CanBePickedUp())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Item can be picked up, calling PickUpItem()"));
+
+		HitItem->PickUpItem();
+	}
 }
 
 bool AMainCharacter::IsUnderCrosshair(FHitResult& OutHitResult)
