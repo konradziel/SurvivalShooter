@@ -42,7 +42,7 @@ FPickupResult UEquipmentComponent::AddItem(AItem* ItemToAdd, int32 Quantity)
 			{
 				// Can add all
 				EquipmentSlots[i].Quantity += Quantity;
-				OnInventoryChanged.Broadcast(i);
+				OnEquipmentChanged.Broadcast(i);
 				return FPickupResult(true, Quantity);
 			}
 			else
@@ -50,7 +50,7 @@ FPickupResult UEquipmentComponent::AddItem(AItem* ItemToAdd, int32 Quantity)
 				// We want to add more than can hold in one stack
 				int32 QuantityOverLimit = Quantity - (ItemToAdd->GetItemMaxStackQuantity() - EquipmentSlots[i].Quantity);
 				EquipmentSlots[i].Quantity += Quantity - QuantityOverLimit;
-				OnInventoryChanged.Broadcast(i);
+				OnEquipmentChanged.Broadcast(i);
 				if (!HasSpaceForItem(ItemToAdd, QuantityOverLimit))
 				{
 					// Try to add rest of stack
@@ -71,7 +71,7 @@ FPickupResult UEquipmentComponent::AddItem(AItem* ItemToAdd, int32 Quantity)
 		EquipmentSlots[EmptySlot].Item = ItemToAdd;
 		EquipmentSlots[EmptySlot].Quantity = Quantity;
 		EquipmentSlots[EmptySlot].bIsEmpty = false;
-		OnInventoryChanged.Broadcast(EmptySlot);
+		OnEquipmentChanged.Broadcast(EmptySlot);
 		return FPickupResult(true, Quantity);
 	}
 
@@ -98,7 +98,7 @@ bool UEquipmentComponent::RemoveItem(int32 SlotIndex, int32 Quantity)
 		EquipmentSlots[SlotIndex].Quantity -= Quantity;
 	}
 
-	OnInventoryChanged.Broadcast(SlotIndex);
+	OnEquipmentChanged.Broadcast(SlotIndex);
 	return true;
 }
 
@@ -116,8 +116,8 @@ bool UEquipmentComponent::SwapItems(int32 SlotIndex1, int32 SlotIndex2)
 	EquipmentSlots[SlotIndex1] = EquipmentSlots[SlotIndex2];
 	EquipmentSlots[SlotIndex2] = TempSlot;
 
-	OnInventoryChanged.Broadcast(SlotIndex1);
-	OnInventoryChanged.Broadcast(SlotIndex2);
+	OnEquipmentChanged.Broadcast(SlotIndex1);
+	OnEquipmentChanged.Broadcast(SlotIndex2);
 	return true;
 }
 

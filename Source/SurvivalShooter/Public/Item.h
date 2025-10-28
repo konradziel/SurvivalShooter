@@ -60,4 +60,5 @@ public:
 	FORCEINLINE UWidgetComponent* GetPickUpWidget() const { return PickUpWidget; };
 	FORCEINLINE int32 GetItemQuantity() const { return Quantity; };
 	FORCEINLINE int32 GetItemMaxStackQuantity() const { return MaxStackQuantity; };
+	FORCEINLINE UTexture2D* GetItemIcon() const { return ItemIcon; };
 };

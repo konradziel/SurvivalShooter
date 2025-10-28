@@ -51,7 +51,7 @@ struct FPickupResult
 	}
 };
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInventoryChanged, int32, SlotIndex);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEquipmentChanged, int32, SlotIndex);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SURVIVALSHOOTER_API UEquipmentComponent : public UActorComponent
@@ -96,7 +96,7 @@ public:
 	bool HasSpaceForItem(AItem* Item, int32 Quantity = 1) const;
 
 	UPROPERTY(BlueprintAssignable)
-	FOnInventoryChanged OnInventoryChanged;
+	FOnEquipmentChanged OnEquipmentChanged;
 
 	FORCEINLINE TArray<FEquipmentSlot> GetEquipmentSlots() const { return EquipmentSlots; }
 	FORCEINLINE int32 GetMaxSlots() const { return MaxSlots; }		
