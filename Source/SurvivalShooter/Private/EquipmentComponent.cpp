@@ -49,15 +49,19 @@ FPickupResult UEquipmentComponent::AddItem(AItem* ItemToAdd, int32 Quantity)
 			{
 				// We want to add more than can hold in one stack
 				int32 QuantityOverLimit = Quantity - (ItemToAdd->GetItemMaxStackQuantity() - EquipmentSlots[i].Quantity);
+				UE_LOG(LogTemp, Warning, TEXT("QuantityOverLimit: %d"), QuantityOverLimit);
 				EquipmentSlots[i].Quantity += Quantity - QuantityOverLimit;
 				OnEquipmentChanged.Broadcast(i);
-				if (!HasSpaceForItem(ItemToAdd, QuantityOverLimit))
+				UE_LOG(LogTemp, Warning, TEXT("Check if we have space for rest of stack"));
+				if (HasSpaceForItem(ItemToAdd, QuantityOverLimit))
 				{
-					// Try to add rest of stack
+					UE_LOG(LogTemp, Warning, TEXT("We have space. Adding item."));
 					AddItem(ItemToAdd, QuantityOverLimit);
+					return FPickupResult(true, Quantity);
 				}
 				else
 				{
+					UE_LOG(LogTemp, Warning, TEXT("We don't have space."));
 					return FPickupResult(true, Quantity - QuantityOverLimit);
 				}
 			}
@@ -65,6 +69,7 @@ FPickupResult UEquipmentComponent::AddItem(AItem* ItemToAdd, int32 Quantity)
 	}
 
 	// Adding to empty slot
+	UE_LOG(LogTemp, Warning, TEXT("Adding to empty slot."));
 	int32 EmptySlot = GetFirstEmptySlot();
 	if (EmptySlot != -1)
 	{
