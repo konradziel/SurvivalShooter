@@ -36,7 +36,7 @@ FPickupResult UEquipmentComponent::AddItem(AItem* ItemToAdd, int32 Quantity)
 	// Adding to stack
 	for (int32 i = 0; i < EquipmentSlots.Num(); i++)
 	{
-		if (!EquipmentSlots[i].bIsEmpty && EquipmentSlots[i].Item == ItemToAdd && EquipmentSlots[i].Quantity < ItemToAdd->GetItemMaxStackQuantity())
+		if (!EquipmentSlots[i].bIsEmpty && EquipmentSlots[i].Item->GetClass() == ItemToAdd->GetClass() && EquipmentSlots[i].Quantity < ItemToAdd->GetItemMaxStackQuantity())
 		{
 			if ((EquipmentSlots[i].Quantity + Quantity) <= ItemToAdd->GetItemMaxStackQuantity())
 			{
@@ -161,12 +161,14 @@ bool UEquipmentComponent::HasSpaceForItem(AItem* Item, int32 Quantity) const
 	// Check for stack
 	for (const FEquipmentSlot& Slot : EquipmentSlots)
 	{
-		if (!Slot.bIsEmpty && Slot.Item == Item && Slot.Quantity < Item->GetItemMaxStackQuantity())
+		if (!Slot.bIsEmpty && Slot.Item->GetClass() == Item->GetClass() && Slot.Quantity < Item->GetItemMaxStackQuantity())
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Item can be stacked"));
 			return true;
 		}
 	}
-
+	
+	UE_LOG(LogTemp, Warning, TEXT("Item can't be stacked. Check for empty slots."));
 	return GetFirstEmptySlot() != -1;
 }
 
