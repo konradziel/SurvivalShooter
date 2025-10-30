@@ -4,6 +4,7 @@
 #include "EquipmentComponent.h"
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
+#include "Components/Border.h"
 #include "Blueprint/WidgetTree.h"
 
 void UEquipmentWidget::OnEquipmentChanged(int32 SlotIndex)
@@ -20,6 +21,30 @@ void UEquipmentWidget::OnEquipmentChanged(int32 SlotIndex)
 
 	FEquipmentSlot SlotData = TargetEquipmentComponent->GetSlot(SlotIndex);	
 	UpdateSlotWidget(SlotIndex, SlotData);
+}
+
+void UEquipmentWidget::OnActiveSlotChanged(int32 ActiveSlotIndex)
+{
+    UE_LOG(LogTemp, Warning, TEXT("OnActiveSlotChanged: %d"), ActiveSlotIndex);
+    if (!TargetEquipmentComponent.IsValid())
+    {
+        return;
+    }
+
+    if (ActiveSlotIndex < 0 || ActiveSlotIndex >(TargetEquipmentComponent->GetMaxSlots() - 1))
+    {
+        HighlightedSlotIndex = 0;
+        return;
+    }
+
+    int32 PreviousHighlightedSlotIndex = HighlightedSlotIndex;
+    HighlightedSlotIndex = ActiveSlotIndex;
+
+    FEquipmentSlot PreviousSlotData = TargetEquipmentComponent->GetSlot(PreviousHighlightedSlotIndex);
+    FEquipmentSlot SlotData = TargetEquipmentComponent->GetSlot(HighlightedSlotIndex);
+    
+    UpdateSlotWidget(PreviousHighlightedSlotIndex, PreviousSlotData);
+    UpdateSlotWidget(HighlightedSlotIndex, SlotData);
 }
 
 void UEquipmentWidget::UpdateSlotWidget(int32 SlotIndex, const FEquipmentSlot& SlotData)
@@ -60,6 +85,21 @@ void UEquipmentWidget::UpdateSlotWidget(int32 SlotIndex, const FEquipmentSlot& S
             }
         }
     }
+
+    if (SlotWidget.Border)
+    {
+        int32 ActiveSlot = TargetEquipmentComponent.IsValid() ? TargetEquipmentComponent->GetActiveSlotIndex() : 0;
+        if (ActiveSlot == SlotIndex)
+        {
+            // Set border to active color
+            SlotWidget.Border->SetBrushColor(FLinearColor::Yellow);
+        }
+        else
+        {
+            // Set border to inactive color
+            SlotWidget.Border->SetBrushColor(FLinearColor::Black);
+        }
+    }
 }
 
 void UEquipmentWidget::SetTargetEquipmentComponent(UEquipmentComponent* NewEquipmentComponent)
@@ -72,28 +112,33 @@ void UEquipmentWidget::SetTargetEquipmentComponent(UEquipmentComponent* NewEquip
 	if (TargetEquipmentComponent.IsValid())
 	{
 		TargetEquipmentComponent->OnEquipmentChanged.RemoveDynamic(this, &UEquipmentWidget::OnEquipmentChanged);
-	}
+        TargetEquipmentComponent->OnActiveSlotChanged.RemoveDynamic(this, &UEquipmentWidget::OnActiveSlotChanged);
+    }
 
 	TargetEquipmentComponent = NewEquipmentComponent;
 
 	if (TargetEquipmentComponent.IsValid())
 	{
 		TargetEquipmentComponent->OnEquipmentChanged.AddDynamic(this, &UEquipmentWidget::OnEquipmentChanged);
-		
+        TargetEquipmentComponent->OnActiveSlotChanged.AddDynamic(this, &UEquipmentWidget::OnActiveSlotChanged);
+
 		// Initialize all slots with current data
 		for (int32 i = 0; i < SlotWidgets.Num(); i++)
 		{
 			FEquipmentSlot SlotData = TargetEquipmentComponent->GetSlot(i);
 			UpdateSlotWidget(i, SlotData);
 		}
+
+        OnActiveSlotChanged(TargetEquipmentComponent->GetActiveSlotIndex());
 	}
 }
 
-void UEquipmentWidget::AddSlotReference(UImage* Icon, UTextBlock* Quantity)
+void UEquipmentWidget::AddSlotReference(UImage* Icon, UTextBlock* Quantity, UBorder* Border)
 {
     FSlotWidget NewSlot;
     NewSlot.ItemIcon = Icon;
     NewSlot.QuantityText = Quantity;
+    NewSlot.Border = Border;
     SlotWidgets.Add(NewSlot);
 }
 
@@ -122,17 +167,19 @@ void UEquipmentWidget::AddSlotWidget(UUserWidget* SlotWidget)
 
     UImage* ItemIcon = nullptr;
     UTextBlock* QuantityText = nullptr;
+    UBorder* Border = nullptr;
 
     if (SlotWidget->WidgetTree)
     {
         // Find widgets by name
         ItemIcon = Cast<UImage>(SlotWidget->WidgetTree->FindWidget(TEXT("ItemIcon")));
         QuantityText = Cast<UTextBlock>(SlotWidget->WidgetTree->FindWidget(TEXT("QuantityText")));
+        Border = Cast<UBorder>(SlotWidget->WidgetTree->FindWidget(TEXT("Border")));
     }
 
     // Add the slot if both widgets were found
     if (ItemIcon && QuantityText)
     {
-        AddSlotReference(ItemIcon, QuantityText);
+        AddSlotReference(ItemIcon, QuantityText, Border);
     }
 }

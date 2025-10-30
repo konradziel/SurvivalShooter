@@ -65,6 +65,23 @@ protected:
 
 	void PickupItem();
 
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* Slot0Action;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* Slot1Action;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* Slot2Action;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* Slot3Action;
+
+	void SelectEquipmentSlot0();
+	void SelectEquipmentSlot1();
+	void SelectEquipmentSlot2();
+	void SelectEquipmentSlot3();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

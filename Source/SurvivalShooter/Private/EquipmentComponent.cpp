@@ -177,4 +177,22 @@ bool UEquipmentComponent::HasSpaceForItem(AItem* Item, int32 Quantity) const
 	return GetFirstEmptySlot() != -1;
 }
 
+bool UEquipmentComponent::SetActiveSlot(int32 SlotIndex)
+{
+	UE_LOG(LogTemp, Warning, TEXT("SetActiveSlot called for index %d"), SlotIndex);
+	if (SlotIndex < 0 || SlotIndex >= EquipmentSlots.Num())
+	{
+		ActiveSlotIndex = 0;
+		OnActiveSlotChanged.Broadcast(ActiveSlotIndex);
+		return true;
+	}
+
+	if (ActiveSlotIndex != SlotIndex)
+	{
+		ActiveSlotIndex = SlotIndex;
+		OnActiveSlotChanged.Broadcast(ActiveSlotIndex);
+	}
+	return true;
+}
+
 

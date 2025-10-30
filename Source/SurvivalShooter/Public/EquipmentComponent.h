@@ -52,6 +52,7 @@ struct FPickupResult
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEquipmentChanged, int32, SlotIndex);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnActiveSlotChanged, int32, ActiveSlotIndex);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SURVIVALSHOOTER_API UEquipmentComponent : public UActorComponent
@@ -95,9 +96,20 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool HasSpaceForItem(AItem* Item, int32 Quantity = 1) const;
 
+	UFUNCTION(BlueprintCallable)
+	bool SetActiveSlot(int32 SlotIndex);
+
 	UPROPERTY(BlueprintAssignable)
 	FOnEquipmentChanged OnEquipmentChanged;
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnActiveSlotChanged OnActiveSlotChanged;
 
+private:
+	int32 ActiveSlotIndex = 0;
+
+public:
 	FORCEINLINE TArray<FEquipmentSlot> GetEquipmentSlots() const { return EquipmentSlots; }
-	FORCEINLINE int32 GetMaxSlots() const { return MaxSlots; }		
+	FORCEINLINE int32 GetMaxSlots() const { return MaxSlots; }
+	FORCEINLINE int32 GetActiveSlotIndex() const { return ActiveSlotIndex; }
 };

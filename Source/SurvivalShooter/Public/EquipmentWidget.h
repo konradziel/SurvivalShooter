@@ -8,6 +8,7 @@
 
 class UTextBlock;
 class UImage;
+class UBorder;
 class UEquipmentComponent;
 struct FEquipmentSlot;
 
@@ -22,10 +23,14 @@ struct FSlotWidget
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     TObjectPtr<UImage> ItemIcon;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TObjectPtr<UBorder> Border;
+
     FSlotWidget()
     {
         QuantityText = nullptr;
         ItemIcon = nullptr;
+        Border = nullptr;
     }
 };
 
@@ -38,9 +43,15 @@ class SURVIVALSHOOTER_API UEquipmentWidget : public UUserWidget
     UFUNCTION()
     void OnEquipmentChanged(int32 SlotIndex);
 
+    UFUNCTION()
+    void OnActiveSlotChanged(int32 ActiveSlotIndex);
+
 protected:
     UPROPERTY(BlueprintReadOnly, Category = "Equipment")
     TArray<FSlotWidget> SlotWidgets;
+
+    UPROPERTY(BlueprintReadOnly, Category = "Equipment")
+    int32 HighlightedSlotIndex = 0;
 
     void UpdateSlotWidget(int32 SlotIndex, const FEquipmentSlot& SlotData);
 
@@ -49,7 +60,7 @@ public:
     void SetTargetEquipmentComponent(UEquipmentComponent* NewEquipmentComponent);
 
     UFUNCTION(BlueprintCallable, Category = "Equipment")
-    void AddSlotReference(UImage* Icon, UTextBlock* Quantity);
+    void AddSlotReference(UImage* Icon, UTextBlock* Quantity, UBorder* Border);
 
     // Call this after all slot references are added and component is set
     UFUNCTION(BlueprintCallable, Category = "Equipment")

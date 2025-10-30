@@ -111,6 +111,11 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		Input->BindAction(RunAction, ETriggerEvent::Completed, this, &AMainCharacter::RunStop);
 
 		Input->BindAction(PickupAction, ETriggerEvent::Started, this, &AMainCharacter::PickupItem);
+	
+		Input->BindAction(Slot0Action, ETriggerEvent::Started, this, &AMainCharacter::SelectEquipmentSlot0);
+		Input->BindAction(Slot1Action, ETriggerEvent::Started, this, &AMainCharacter::SelectEquipmentSlot1);
+		Input->BindAction(Slot2Action, ETriggerEvent::Started, this, &AMainCharacter::SelectEquipmentSlot2);
+		Input->BindAction(Slot3Action, ETriggerEvent::Started, this, &AMainCharacter::SelectEquipmentSlot3);
 	}	
 }
 
@@ -185,6 +190,38 @@ void AMainCharacter::PickupItem()
 		UE_LOG(LogTemp, Warning, TEXT("Item can be picked up, calling PickUpItem()"));
 
 		HitItem->PickUpItem();
+	}
+}
+
+void AMainCharacter::SelectEquipmentSlot0()
+{
+	if (EquipmentComponent)
+	{
+		EquipmentComponent->SetActiveSlot(0);
+	}
+}
+
+void AMainCharacter::SelectEquipmentSlot1()
+{
+	if (EquipmentComponent)
+	{
+		EquipmentComponent->SetActiveSlot(1);
+	}
+}
+
+void AMainCharacter::SelectEquipmentSlot2()
+{
+	if (EquipmentComponent)
+	{
+		EquipmentComponent->SetActiveSlot(2);
+	}
+}
+
+void AMainCharacter::SelectEquipmentSlot3()
+{
+	if (EquipmentComponent)
+	{
+		EquipmentComponent->SetActiveSlot(3);
 	}
 }
 
