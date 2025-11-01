@@ -11,6 +11,7 @@
 #include "Public/SanityComponent.h"
 #include "Public/EquipmentComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 
 
 // Sets default values
@@ -67,6 +68,14 @@ void AMainCharacter::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
+
+    // Subscribe to active slot changes to auto-equip
+    if (EquipmentComponent)
+    {
+        EquipmentComponent->OnActiveSlotChanged.AddDynamic(this, &AMainCharacter::HandleActiveSlotChanged);
+
+        HandleActiveSlotChanged(EquipmentComponent->GetActiveSlotIndex());
+    }
 }
 
 
@@ -111,7 +120,7 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		Input->BindAction(RunAction, ETriggerEvent::Completed, this, &AMainCharacter::RunStop);
 
 		Input->BindAction(PickupAction, ETriggerEvent::Started, this, &AMainCharacter::PickupItem);
-	
+
 		Input->BindAction(Slot0Action, ETriggerEvent::Started, this, &AMainCharacter::SelectEquipmentSlot0);
 		Input->BindAction(Slot1Action, ETriggerEvent::Started, this, &AMainCharacter::SelectEquipmentSlot1);
 		Input->BindAction(Slot2Action, ETriggerEvent::Started, this, &AMainCharacter::SelectEquipmentSlot2);
@@ -190,7 +199,42 @@ void AMainCharacter::PickupItem()
 		UE_LOG(LogTemp, Warning, TEXT("Item can be picked up, calling PickUpItem()"));
 
 		HitItem->PickUpItem();
+		EquipActiveSlotItem();
 	}
+}
+
+void AMainCharacter::EquipActiveSlotItem()
+{
+    if (!EquipmentComponent)
+    {
+        return;
+    }
+
+    const int32 ActiveIndex = EquipmentComponent->GetActiveSlotIndex();
+    const FEquipmentSlot Slot = EquipmentComponent->GetSlot(ActiveIndex);
+
+    if (Slot.bIsEmpty || !Slot.Item)
+    {
+		UE_LOG(LogTemp, Warning, TEXT("EquipActiveSlotItem: Active slot %d is empty"), ActiveIndex);        
+        return;
+    }
+
+    UE_LOG(LogTemp, Warning, TEXT("Equipping item '%s' from slot %d (qty: %d)"), *Slot.Item->ItemName, ActiveIndex, Slot.Quantity);
+
+    Slot.Item->OnEquipped(this);
+    EquippedItem = Slot.Item;
+}
+
+void AMainCharacter::HandleActiveSlotChanged(int32 ActiveIndex)
+{
+	if (EquippedItem)
+	{
+		EquippedItem->SetActorHiddenInGame(true);
+		EquippedItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		EquippedItem = nullptr;
+	}
+
+    EquipActiveSlotItem();
 }
 
 void AMainCharacter::SelectEquipmentSlot0()

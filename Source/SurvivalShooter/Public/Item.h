@@ -41,6 +41,9 @@ public:
 	// Override to customize pickup behavior
 	virtual void OnPickup();
 
+    // Called when the item is equipped by a character
+    virtual void OnEquipped(class AMainCharacter* OwnerCharacter);
+
 	UFUNCTION(BlueprintCallable)
 	void DestroySelf();
 

@@ -67,14 +67,31 @@ void AItem::OnPickup()
 	// Hide
 	SetActorHiddenInGame(true);
 	SetActorEnableCollision(false);
-
-	// Destroy after delay
-	FTimerHandle DestroyTimer;
-	GetWorldTimerManager().SetTimer(DestroyTimer, this, &AItem::DestroySelf, 0.1f, false);
+    // Keep the actor alive so it can be equipped later
 }
 
 void AItem::DestroySelf()
 {
 	Destroy();
+}
+
+void AItem::OnEquipped(AMainCharacter* OwnerCharacter)
+{
+    if (!OwnerCharacter)
+    {
+        return;
+    }
+
+    // Attach the item actor to the character's right hand socket and show it
+    USkeletalMeshComponent* CharacterMesh = OwnerCharacter->GetMesh();
+    if (!CharacterMesh)
+    {
+        return;
+    }
+
+    const FName HandSocketName = TEXT("RightHandSocket");
+    AttachToComponent(CharacterMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, HandSocketName);
+    SetActorHiddenInGame(false);
+    SetActorEnableCollision(false);
 }
 

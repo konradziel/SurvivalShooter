@@ -65,6 +65,11 @@ protected:
 
 	void PickupItem();
 
+    void EquipActiveSlotItem();
+
+    UFUNCTION()
+    void HandleActiveSlotChanged(int32 ActiveIndex);
+
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* Slot0Action;
 
@@ -112,6 +117,7 @@ private:
 
 	AItem* LastHitItem = nullptr;
 	AItem* HitItem = nullptr;
+	AItem* EquippedItem = nullptr;
 	
 public:
 	/** Returns CameraBoom **/
