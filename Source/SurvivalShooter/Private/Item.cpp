@@ -7,10 +7,11 @@
 // Sets default values
 AItem::AItem()
 {
+
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
-	ItemMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ItemMesh"));
+	ItemMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ItemMesh"));
 	SetRootComponent(ItemMesh);
 
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
@@ -30,6 +31,10 @@ void AItem::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	if (GetWorld() && ItemMesh && CollisionBox)
+	{
+		SetItemProperties(ItemState);
+	}
 }
 
 bool AItem::CanBePickedUp() const
@@ -65,8 +70,8 @@ void AItem::PickUpItem()
 void AItem::OnPickup()
 {
 	// Hide
-	SetActorHiddenInGame(true);
-	SetActorEnableCollision(false);
+	ItemState = EItemState::EIS_PickedUp;
+	SetItemProperties(ItemState);
     // Keep the actor alive so it can be equipped later
 }
 
@@ -91,7 +96,79 @@ void AItem::OnEquipped(AMainCharacter* OwnerCharacter)
 
     const FName HandSocketName = TEXT("RightHandSocket");
     AttachToComponent(CharacterMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, HandSocketName);
-    SetActorHiddenInGame(false);
-    SetActorEnableCollision(false);
+	ItemState = EItemState::EIS_Equipped;
+	SetItemProperties(ItemState);
 }
 
+void AItem::OnDropped(const FVector& DropLocation)
+{
+	SetActorLocation(DropLocation);
+
+	// Update state to OnGround
+	ItemState = EItemState::EIS_OnGround;
+	SetItemProperties(ItemState);
+}
+
+void AItem::SetItemProperties(EItemState State)
+{
+	if (!ItemMesh || !CollisionBox)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SetItemProperties called but components are null"));
+		return;
+	}
+
+	switch (State)
+	{
+	case EItemState::EIS_OnGround:
+
+		SetActorHiddenInGame(false);
+		SetActorEnableCollision(true);
+
+		ItemMesh->SetSimulatePhysics(true);
+		ItemMesh->SetEnableGravity(true);
+		ItemMesh->SetVisibility(true);
+		ItemMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+		ItemMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
+		ItemMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Block);
+		ItemMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+
+		ItemMesh->SetMassOverrideInKg(NAME_None, 1.0f, true);
+		ItemMesh->SetLinearDamping(0.5f);
+		ItemMesh->SetAngularDamping(0.5f);
+
+		CollisionBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+		CollisionBox->SetCollisionResponseToChannel(
+			ECollisionChannel::ECC_Visibility,
+			ECollisionResponse::ECR_Block);
+		CollisionBox->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+
+		break;
+
+	case EItemState::EIS_PickedUp:
+
+		SetActorHiddenInGame(true);
+		SetActorEnableCollision(false);
+
+		ItemMesh->SetSimulatePhysics(false);
+		ItemMesh->SetEnableGravity(false);
+		ItemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		break;
+
+	case EItemState::EIS_Equipped:
+
+		SetActorHiddenInGame(false);
+		SetActorEnableCollision(false);
+
+		ItemMesh->SetSimulatePhysics(false);
+		ItemMesh->SetEnableGravity(false);
+		ItemMesh->SetVisibility(true);
+		ItemMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+		ItemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		CollisionBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+		CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		break;
+	}
+}

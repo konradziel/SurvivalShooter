@@ -4,6 +4,16 @@
 #include "GameFramework/Actor.h"
 #include "Item.generated.h"
 
+UENUM(BlueprintType)
+enum class EItemState : uint8
+{
+	EIS_OnGround UMETA(DisplayName = "OnGround"),
+	EIS_PickedUp UMETA(DisplayName = "PickedUp"),
+	EIS_Equipped UMETA(DisplayName = "Equipped"),
+	EIS_MAX UMETA(DisplayName = "DefaultMAX")
+};
+
+
 UCLASS()
 class SURVIVALSHOOTER_API AItem : public AActor
 {
@@ -31,6 +41,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties")
 	int32 MaxStackQuantity = 1;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties")
+	EItemState ItemState = EItemState::EIS_OnGround;
+
 	// Pickup functionality
 	UFUNCTION(BlueprintCallable)
 	bool CanBePickedUp() const;
@@ -44,14 +57,17 @@ public:
     // Called when the item is equipped by a character
     virtual void OnEquipped(class AMainCharacter* OwnerCharacter);
 
+	virtual void OnDropped(const FVector& DropLocation);
+
 	UFUNCTION(BlueprintCallable)
 	void DestroySelf();
 
+	void SetItemProperties(EItemState State);
 
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
-	USkeletalMeshComponent* ItemMesh;
+	UStaticMeshComponent* ItemMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	class UBoxComponent* CollisionBox;

@@ -67,7 +67,12 @@ protected:
 
     void EquipActiveSlotItem();
 
-    UFUNCTION()
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* DropAction;
+
+	void DropActiveSlotItem();
+
+	UFUNCTION()
     void HandleActiveSlotChanged(int32 ActiveIndex);
 
 	UPROPERTY(EditAnywhere, Category = Input)

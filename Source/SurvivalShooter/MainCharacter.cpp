@@ -89,7 +89,6 @@ void AMainCharacter::Tick(float DeltaTime)
 	if (ItemUnderCrosshair.bBlockingHit)
 	{
 		HitItem = Cast<AItem>(ItemUnderCrosshair.GetActor());
-
 		if ((HitItem != LastHitItem) && (LastHitItem && LastHitItem->GetPickUpWidget())) 
 		{
 			LastHitItem->GetPickUpWidget()->SetVisibility(false);
@@ -120,6 +119,8 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		Input->BindAction(RunAction, ETriggerEvent::Completed, this, &AMainCharacter::RunStop);
 
 		Input->BindAction(PickupAction, ETriggerEvent::Started, this, &AMainCharacter::PickupItem);
+
+		Input->BindAction(DropAction, ETriggerEvent::Started, this, &AMainCharacter::DropActiveSlotItem);
 
 		Input->BindAction(Slot0Action, ETriggerEvent::Started, this, &AMainCharacter::SelectEquipmentSlot0);
 		Input->BindAction(Slot1Action, ETriggerEvent::Started, this, &AMainCharacter::SelectEquipmentSlot1);
@@ -223,6 +224,43 @@ void AMainCharacter::EquipActiveSlotItem()
 
     Slot.Item->OnEquipped(this);
     EquippedItem = Slot.Item;
+}
+
+void AMainCharacter::DropActiveSlotItem()
+{
+	if (!EquipmentComponent)
+	{
+		return;
+	}
+
+	const int32 ActiveIndex = EquipmentComponent->GetActiveSlotIndex();
+	const FEquipmentSlot Slot = EquipmentComponent->GetSlot(ActiveIndex);
+
+	if (Slot.bIsEmpty || !Slot.Item)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("DropActiveSlotItem: Active slot %d is empty"), ActiveIndex);
+		return;
+	}
+
+	AItem* ItemToDrop = Slot.Item;
+
+	// Unequip
+	if (EquippedItem == ItemToDrop)
+	{
+		EquippedItem->SetActorHiddenInGame(true);
+		EquippedItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		EquippedItem = nullptr;
+	}
+
+	EquipmentComponent->RemoveItem(ActiveIndex, Slot.Quantity);
+
+	FVector CharacterLocation = GetActorLocation();
+	FRotator CharacterRotation = GetActorRotation();
+
+	FVector ForwardVector = CharacterRotation.Vector();
+	FVector DropLocation = CharacterLocation + (ForwardVector * 50.0f);
+
+	ItemToDrop->OnDropped(DropLocation);
 }
 
 void AMainCharacter::HandleActiveSlotChanged(int32 ActiveIndex)
