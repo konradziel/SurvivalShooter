@@ -67,7 +67,7 @@ public:
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
-	UStaticMeshComponent* ItemMesh;
+	UMeshComponent* ItemMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	class UBoxComponent* CollisionBox;
@@ -80,4 +80,5 @@ public:
 	FORCEINLINE int32 GetItemQuantity() const { return Quantity; };
 	FORCEINLINE int32 GetItemMaxStackQuantity() const { return MaxStackQuantity; };
 	FORCEINLINE UTexture2D* GetItemIcon() const { return ItemIcon; };
+	FORCEINLINE UStaticMeshComponent* GetItemMesh() const { return ItemMesh; }
 };
