@@ -145,4 +145,6 @@ public:
 	bool GetRunStatus();
 
 	bool IsUnderCrosshair(FHitResult& OutHitResult);
+
+	bool IsWeaponEquipped() const;
 };

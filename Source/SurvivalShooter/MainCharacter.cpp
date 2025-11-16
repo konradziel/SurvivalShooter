@@ -408,3 +408,9 @@ bool AMainCharacter::IsUnderCrosshair(FHitResult& OutHitResult)
 
 	return false;
 }
+
+bool AMainCharacter::IsWeaponEquipped() const
+{
+	UE_LOG(LogTemp, Warning, TEXT("IsWeaponEquipped: %d"), EquippedItem && EquippedItem->IsA(AWeapon::StaticClass()));
+	return EquippedItem && EquippedItem->IsA(AWeapon::StaticClass());
+}
