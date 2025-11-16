@@ -10,6 +10,7 @@
 #include "Public/HealthComponent.h"
 #include "Public/SanityComponent.h"
 #include "Public/EquipmentComponent.h"
+#include "Public/Weapon.h"
 #include "Components/WidgetComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 
@@ -126,6 +127,11 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		Input->BindAction(Slot1Action, ETriggerEvent::Started, this, &AMainCharacter::SelectEquipmentSlot1);
 		Input->BindAction(Slot2Action, ETriggerEvent::Started, this, &AMainCharacter::SelectEquipmentSlot2);
 		Input->BindAction(Slot3Action, ETriggerEvent::Started, this, &AMainCharacter::SelectEquipmentSlot3);
+
+		Input->BindAction(FireAction, ETriggerEvent::Started, this, &AMainCharacter::StartFire);
+		Input->BindAction(FireAction, ETriggerEvent::Completed, this, &AMainCharacter::StopFire);
+
+		Input->BindAction(ReloadAction, ETriggerEvent::Started, this, &AMainCharacter::ReloadWeapon);
 	}	
 }
 
@@ -304,6 +310,66 @@ void AMainCharacter::SelectEquipmentSlot3()
 	if (EquipmentComponent)
 	{
 		EquipmentComponent->SetActiveSlot(3);
+	}
+}
+
+void AMainCharacter::StartFire()
+{
+	if (!EquippedItem)
+	{
+		return;
+	}
+
+	AWeapon* Weapon = Cast<AWeapon>(EquippedItem);
+	if (!Weapon)
+	{
+		return;
+	}
+
+	// Fire immediately
+	FireWeapon();
+
+	GetWorld()->GetTimerManager().SetTimer(
+		FireTimerHandle,
+		this,
+		&AMainCharacter::FireWeapon,
+		Weapon->FireRate,
+		true
+	);
+}
+
+void AMainCharacter::StopFire()
+{
+	GetWorld()->GetTimerManager().ClearTimer(FireTimerHandle);
+}
+
+void AMainCharacter::ReloadWeapon()
+{
+	if (!EquippedItem)
+	{
+		return;
+	}
+
+	AWeapon* Weapon = Cast<AWeapon>(EquippedItem);
+	if (!Weapon)
+	{
+		return;
+	}
+
+	Weapon->Reload(this);
+}
+
+void AMainCharacter::FireWeapon()
+{
+	if (!EquippedItem)
+	{
+		return;
+	}
+
+	AWeapon* Weapon = Cast<AWeapon>(EquippedItem);
+	if (Weapon)
+	{
+		Weapon->Shoot(this);
 	}
 }
 

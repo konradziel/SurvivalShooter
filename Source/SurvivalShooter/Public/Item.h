@@ -62,7 +62,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void DestroySelf();
 
-	void SetItemProperties(EItemState State);
+	virtual void SetItemProperties(EItemState State);
 
 
 private:
@@ -80,5 +80,5 @@ public:
 	FORCEINLINE int32 GetItemQuantity() const { return Quantity; };
 	FORCEINLINE int32 GetItemMaxStackQuantity() const { return MaxStackQuantity; };
 	FORCEINLINE UTexture2D* GetItemIcon() const { return ItemIcon; };
-	FORCEINLINE UStaticMeshComponent* GetItemMesh() const { return ItemMesh; }
+	FORCEINLINE UMeshComponent* GetItemMesh() const { return ItemMesh; };
 };

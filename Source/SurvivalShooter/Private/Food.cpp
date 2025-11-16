@@ -3,3 +3,7 @@
 
 #include "Food.h"
 
+AFood::AFood()
+{
+	ItemName = TEXT("Food");
+}

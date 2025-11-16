@@ -14,4 +14,6 @@ class SURVIVALSHOOTER_API AFood : public AItem
 {
 	GENERATED_BODY()
 
+public:
+	AFood();
 };

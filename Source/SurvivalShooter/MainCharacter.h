@@ -92,6 +92,17 @@ protected:
 	void SelectEquipmentSlot2();
 	void SelectEquipmentSlot3();
 
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* FireAction;
+
+	void StartFire();
+	void StopFire();
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* ReloadAction;
+
+	void ReloadWeapon();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -114,15 +125,15 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment, meta = (AllowPrivateAccess = "true"))
 	UEquipmentComponent* EquipmentComponent;
 
-
 	float DefaultWalkSpeed;
 	float DefaultRunSpeed;
-
-	bool IsUnderCrosshair(FHitResult& OutHitResult);
 
 	AItem* LastHitItem = nullptr;
 	AItem* HitItem = nullptr;
 	AItem* EquippedItem = nullptr;
+
+	FTimerHandle FireTimerHandle;
+	void FireWeapon();
 	
 public:
 	/** Returns CameraBoom **/
@@ -133,4 +144,5 @@ public:
 	/** Returns Run status */
 	bool GetRunStatus();
 
+	bool IsUnderCrosshair(FHitResult& OutHitResult);
 };
