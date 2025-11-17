@@ -6,4 +6,5 @@
 AFood::AFood()
 {
 	ItemName = TEXT("Food");
+	ItemType = EItemType::EIT_Food;
 }

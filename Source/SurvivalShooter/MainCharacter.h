@@ -103,6 +103,14 @@ protected:
 
 	void ReloadWeapon();
 
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* AimAction;
+
+	void StartAiming();
+	void StopAiming();
+
+	bool bIsAiming = false;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -115,6 +123,11 @@ private:
 	/** Camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* Camera;
+
+	float CameraDefaultFOV;
+	float CameraAimingFOV;
+	float CameraCurrentFOV;
+	float CameraZoomInterpSpeed;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Health, meta = (AllowPrivateAccess = "true"))
 	UHealthComponent* HealthComponent;
@@ -141,8 +154,10 @@ public:
 	/** Returns Camera */
 	FORCEINLINE UCameraComponent* GetCamera() const { return Camera; }
 
+	FORCEINLINE bool GetIsAiming() const { return bIsAiming; }
+
 	/** Returns Run status */
-	bool GetRunStatus();
+	FORCEINLINE bool GetRunStatus() const { return bIsRunning; }
 
 	bool IsUnderCrosshair(FHitResult& OutHitResult);
 

@@ -36,6 +36,8 @@ public:
 
 	bool Reload(class AMainCharacter* Character);
 
+	FVector GetShootingSocketLocation() const;
+
 private:
 	AMagazine* FindMagazineInInventory(class AMainCharacter* Character, int32& SlotIndex);
 

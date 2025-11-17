@@ -15,6 +15,7 @@ AWeapon::AWeapon()
 	MaxStackQuantity = 1;
 	ItemName = TEXT("Weapon");
 	CurrentAmmoInMagazine = 30;
+	ItemType = EItemType::EIT_Weapon;
 }
 
 void AWeapon::Shoot(AMainCharacter* Character)
@@ -26,16 +27,43 @@ void AWeapon::Shoot(AMainCharacter* Character)
 
 	CurrentAmmoInMagazine--;
 
-	FHitResult HitResult;
-	bool bHit = Character->IsUnderCrosshair(HitResult);
+	FHitResult CrosshairHit;
+	FVector Target;
+	Character->IsUnderCrosshair(CrosshairHit);
+	Target = CrosshairHit.Location;
 
+	FVector ShootingSocketLocation = GetShootingSocketLocation();
+	FVector ShootingDirection = (Target - ShootingSocketLocation).GetSafeNormal();
+	FVector TraceEnd = ShootingSocketLocation + (ShootingDirection * 50000.f);
+
+	FHitResult WeaponHit;
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this);
+	QueryParams.AddIgnoredActor(Character);
+
+	bool bHit = GetWorld()->LineTraceSingleByChannel(
+		WeaponHit,
+		ShootingSocketLocation,
+		TraceEnd,
+		ECollisionChannel::ECC_Visibility,
+		QueryParams
+	);
+	UE_LOG(LogTemp, Warning, TEXT("Shoot: "), bHit);
 	if (bHit)
 	{
-		FVector ShootDirection = (HitResult.Location - HitResult.TraceStart).GetSafeNormal();
-		
-		DrawDebugSphere(GetWorld(), HitResult.Location, 10.0f, 12, FColor::Red, false, 1.0f);
-		DrawDebugLine(GetWorld(), HitResult.TraceStart, HitResult.Location, FColor::Red, false, 1.0f, 0, 2.0f);
+		DrawDebugSphere(GetWorld(), WeaponHit.Location, 10.0f, 12, FColor::Red, false, 1.0f);
+		DrawDebugLine(GetWorld(), ShootingSocketLocation, WeaponHit.Location, FColor::Red, false, 1.0f, 0, 2.0f);
 	}
+	
+}
+
+FVector AWeapon::GetShootingSocketLocation() const
+{
+	if (GetItemMesh())
+	{
+		return GetItemMesh()->GetSocketLocation(TEXT("ShootingSocket"));
+	}
+	return GetActorLocation();
 }
 
 bool AWeapon::Reload(AMainCharacter* Character)
@@ -113,3 +141,4 @@ AMagazine* AWeapon::FindMagazineInInventory(AMainCharacter* Character, int32& Sl
 	SlotIndex = -1;
 	return nullptr;
 }
+

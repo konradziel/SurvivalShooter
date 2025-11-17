@@ -21,6 +21,8 @@ AMainCharacter::AMainCharacter()
 	DefaultWalkSpeed = 350.f;
 	DefaultRunSpeed = 700.f;
 
+	CameraZoomInterpSpeed = 20.f;
+
 	GetCharacterMovement()->JumpZVelocity = 700.f;
 	GetCharacterMovement()->AirControl = 0.35f;
 	GetCharacterMovement()->MaxWalkSpeed = DefaultWalkSpeed;
@@ -41,6 +43,7 @@ AMainCharacter::AMainCharacter()
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->TargetArmLength = 300.0f;
 	CameraBoom->bUsePawnControlRotation = true;
+	CameraBoom->SocketOffset = FVector(0.f, 40.f, 40.f);
 
 	// Create a camera that attaches to Boom
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
@@ -60,6 +63,13 @@ void AMainCharacter::BeginPlay()
 	
 	UE_LOG(LogTemp, Warning, TEXT("BeginPlay() called."));
 	UE_LOG(LogTemp, Warning, TEXT("Character Name: %s"), *GetName());
+
+	if (Camera)
+	{
+		CameraDefaultFOV = GetCamera()->FieldOfView;
+		CameraCurrentFOV = CameraDefaultFOV;
+		CameraAimingFOV = 0.8f * CameraDefaultFOV;
+	}
 
 	//Add Input Mapping Context
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
@@ -101,6 +111,26 @@ void AMainCharacter::Tick(float DeltaTime)
 			LastHitItem = HitItem;
 		}
 	}
+
+	if (bIsAiming)
+	{
+		CameraCurrentFOV = FMath::FInterpTo(
+			CameraCurrentFOV,
+			CameraAimingFOV,
+			DeltaTime,
+			CameraZoomInterpSpeed
+		);
+	}
+	else
+	{
+		CameraCurrentFOV = FMath::FInterpTo(
+			CameraCurrentFOV,
+			CameraDefaultFOV,
+			DeltaTime,
+			CameraZoomInterpSpeed
+		);
+	}
+	GetCamera()->SetFieldOfView(CameraCurrentFOV);
 }
 
 
@@ -132,6 +162,9 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		Input->BindAction(FireAction, ETriggerEvent::Completed, this, &AMainCharacter::StopFire);
 
 		Input->BindAction(ReloadAction, ETriggerEvent::Started, this, &AMainCharacter::ReloadWeapon);
+
+		Input->BindAction(AimAction, ETriggerEvent::Started, this, &AMainCharacter::StartAiming);
+		Input->BindAction(AimAction, ETriggerEvent::Completed, this, &AMainCharacter::StopAiming);
 	}	
 }
 
@@ -189,11 +222,6 @@ void AMainCharacter::RunStop(const FInputActionValue& Value)
 		bIsRunning = false;
 		GetCharacterMovement()->MaxWalkSpeed = DefaultWalkSpeed;
 	}
-}
-
-bool AMainCharacter::GetRunStatus()
-{
-	return bIsRunning;
 }
 
 void AMainCharacter::PickupItem()
@@ -373,6 +401,16 @@ void AMainCharacter::FireWeapon()
 	}
 }
 
+void AMainCharacter::StartAiming()
+{
+	bIsAiming = true;
+}
+
+void AMainCharacter::StopAiming()
+{
+	bIsAiming = false;
+}
+
 bool AMainCharacter::IsUnderCrosshair(FHitResult& OutHitResult)
 {
 	FVector2D ViewportSize;
@@ -400,6 +438,12 @@ bool AMainCharacter::IsUnderCrosshair(FHitResult& OutHitResult)
 			Start,
 			End,
 			ECollisionChannel::ECC_Visibility);
+
+		if (!OutHitResult.bBlockingHit)
+		{
+			OutHitResult.Location = End;
+		}
+
 		if (OutHitResult.bBlockingHit)
 		{
 			return true;
@@ -411,6 +455,5 @@ bool AMainCharacter::IsUnderCrosshair(FHitResult& OutHitResult)
 
 bool AMainCharacter::IsWeaponEquipped() const
 {
-	UE_LOG(LogTemp, Warning, TEXT("IsWeaponEquipped: %d"), EquippedItem && EquippedItem->IsA(AWeapon::StaticClass()));
 	return EquippedItem && EquippedItem->IsA(AWeapon::StaticClass());
 }

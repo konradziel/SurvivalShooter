@@ -8,6 +8,7 @@ AMagazine::AMagazine()
 	MaxStackQuantity = 8;
 	ItemName = TEXT("Magazine");
 	CurrentAmmoCount = MaxCapacity;
+	ItemType = EItemType::EIT_Magazine;
 }
 
 int32 AMagazine::AddAmmo(int32 Amount)

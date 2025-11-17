@@ -13,6 +13,14 @@ enum class EItemState : uint8
 	EIS_MAX UMETA(DisplayName = "DefaultMAX")
 };
 
+UENUM(BlueprintType)
+enum class EItemType : uint8
+{
+	EIT_Weapon UMETA(DisplayName = "Weapon"),
+	EIT_Food UMETA(DisplayName = "Food"),
+	EIT_Magazine UMETA(DisplayName = "Magazine"),
+	EIT_None UMETA(DisplayName = "None")
+};
 
 UCLASS()
 class SURVIVALSHOOTER_API AItem : public AActor
@@ -43,6 +51,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties")
 	EItemState ItemState = EItemState::EIS_OnGround;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties")
+	EItemType ItemType = EItemType::EIT_None;
 
 	// Pickup functionality
 	UFUNCTION(BlueprintCallable)

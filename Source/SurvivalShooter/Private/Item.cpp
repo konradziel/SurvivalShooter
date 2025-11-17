@@ -95,7 +95,23 @@ void AItem::OnEquipped(AMainCharacter* OwnerCharacter)
         return;
     }
 
-    const FName HandSocketName = TEXT("RightHandSocket");
+	FName HandSocketName;
+	switch (ItemType)
+	{
+		case EItemType::EIT_Weapon:
+			HandSocketName = TEXT("RightHandWeaponSocket");
+			break;
+		case EItemType::EIT_Food:
+			HandSocketName = TEXT("RightHandFoodSocket");
+			break;
+		case EItemType::EIT_Magazine:
+			HandSocketName = TEXT("RightHandMagazineSocket");
+			break;
+		default:
+			HandSocketName = TEXT("RightHandSocket");
+			break;
+	}
+
     AttachToComponent(CharacterMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, HandSocketName);
 	ItemState = EItemState::EIS_Equipped;
 	SetItemProperties(ItemState);
