@@ -32,6 +32,8 @@ void UMainCHAnimInstance::UpdateAnimProperties(float DeltaTime)
 		bIsRunning = MainCharacter->GetRunStatus();
 
 		bIsWeaponEquipped = MainCharacter->IsWeaponEquipped();
+
+		bIsAiming = MainCharacter->GetIsAiming();
 	}
 }
 

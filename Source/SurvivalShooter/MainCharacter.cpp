@@ -168,6 +168,28 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	}	
 }
 
+void AMainCharacter::Landed(const FHitResult& Hit)
+{
+	Super::Landed(Hit);
+
+	if (bIsRunning)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = DefaultRunSpeed;
+	}
+	else
+	{
+		GetCharacterMovement()->MaxWalkSpeed = DefaultWalkSpeed;
+	}
+}
+
+void AMainCharacter::Jump()
+{
+	if (!bIsAiming)
+	{
+		Super::Jump();
+	}
+}
+
 // Called to move
 void AMainCharacter::Move(const FInputActionValue& Value)
 {
@@ -210,7 +232,10 @@ void AMainCharacter::RunStart(const FInputActionValue& Value)
 	if (Controller != nullptr)
 	{
 		bIsRunning = true;
-		GetCharacterMovement()->MaxWalkSpeed = DefaultRunSpeed;
+		if (!GetCharacterMovement()->IsFalling() && !bIsAiming)
+		{
+			GetCharacterMovement()->MaxWalkSpeed = DefaultRunSpeed;
+		}
 	}
 }
 
@@ -220,7 +245,10 @@ void AMainCharacter::RunStop(const FInputActionValue& Value)
 	if (Controller != nullptr)
 	{
 		bIsRunning = false;
-		GetCharacterMovement()->MaxWalkSpeed = DefaultWalkSpeed;
+		if (!GetCharacterMovement()->IsFalling())
+		{
+			GetCharacterMovement()->MaxWalkSpeed = DefaultWalkSpeed;
+		}
 	}
 }
 
@@ -354,16 +382,20 @@ void AMainCharacter::StartFire()
 		return;
 	}
 
-	// Fire immediately
-	FireWeapon();
+	// Can fire if aiming
+	if (bIsAiming)
+	{
+		// Fire immediately
+		FireWeapon();
 
-	GetWorld()->GetTimerManager().SetTimer(
-		FireTimerHandle,
-		this,
-		&AMainCharacter::FireWeapon,
-		Weapon->FireRate,
-		true
-	);
+		GetWorld()->GetTimerManager().SetTimer(
+			FireTimerHandle,
+			this,
+			&AMainCharacter::FireWeapon,
+			Weapon->FireRate,
+			true
+		);
+	}
 }
 
 void AMainCharacter::StopFire()
@@ -403,12 +435,38 @@ void AMainCharacter::FireWeapon()
 
 void AMainCharacter::StartAiming()
 {
-	bIsAiming = true;
+	if (!bIsRunning && !GetCharacterMovement()->IsFalling() && IsWeaponEquipped())
+	{
+		bIsAiming = true;
+		bUseControllerRotationYaw = true;
+		GetCharacterMovement()->bOrientRotationToMovement = false;
+		CameraBoom->TargetArmLength = 0.0f;
+		CameraBoom->bUsePawnControlRotation = true;
+		CameraBoom->SocketOffset = FVector(30.f, 0.f, 85.f);
+
+		GetMesh()->HideBoneByName(FName("head"), EPhysBodyOp::PBO_None);
+	}
 }
 
 void AMainCharacter::StopAiming()
 {
 	bIsAiming = false;
+	bUseControllerRotationYaw = false;
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	CameraBoom->TargetArmLength = 300.0f;
+	CameraBoom->bUsePawnControlRotation = true;
+	CameraBoom->SocketOffset = FVector(0.f, 40.f, 40.f);
+
+	  GetMesh()->UnHideBoneByName(FName("head"));
+
+	if (bIsRunning)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = DefaultRunSpeed;
+	}
+	else
+	{
+		GetCharacterMovement()->MaxWalkSpeed = DefaultWalkSpeed;
+	}
 }
 
 bool AMainCharacter::IsUnderCrosshair(FHitResult& OutHitResult)

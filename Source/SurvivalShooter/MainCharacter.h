@@ -33,6 +33,9 @@ protected:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	virtual void Landed(const FHitResult& Hit) override;
+
+	virtual void Jump() override;
 
 	/** MappingContext for player input. */
 	UPROPERTY(EditAnywhere, Category = Input)
