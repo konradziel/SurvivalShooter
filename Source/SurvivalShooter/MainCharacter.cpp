@@ -41,9 +41,9 @@ AMainCharacter::AMainCharacter()
 	// Create a camera boom
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 300.0f;
+	CameraBoom->TargetArmLength = 500.0f;
 	CameraBoom->bUsePawnControlRotation = true;
-	CameraBoom->SocketOffset = FVector(0.f, 40.f, 40.f);
+	CameraBoom->SocketOffset = FVector(0.f, 60.f, 60.f);
 
 	// Create a camera that attaches to Boom
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
@@ -440,11 +440,9 @@ void AMainCharacter::StartAiming()
 		bIsAiming = true;
 		bUseControllerRotationYaw = true;
 		GetCharacterMovement()->bOrientRotationToMovement = false;
-		CameraBoom->TargetArmLength = 0.0f;
+		CameraBoom->TargetArmLength = 250.0f;
 		CameraBoom->bUsePawnControlRotation = true;
-		CameraBoom->SocketOffset = FVector(30.f, 0.f, 85.f);
-
-		GetMesh()->HideBoneByName(FName("head"), EPhysBodyOp::PBO_None);
+		CameraBoom->SocketOffset = FVector(0.f, 100.f, 75.f);
 	}
 }
 
@@ -453,9 +451,9 @@ void AMainCharacter::StopAiming()
 	bIsAiming = false;
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
-	CameraBoom->TargetArmLength = 300.0f;
+	CameraBoom->TargetArmLength = 500.0f;
 	CameraBoom->bUsePawnControlRotation = true;
-	CameraBoom->SocketOffset = FVector(0.f, 40.f, 40.f);
+	CameraBoom->SocketOffset = FVector(0.f, 60.f, 60.f);
 
 	  GetMesh()->UnHideBoneByName(FName("head"));
 

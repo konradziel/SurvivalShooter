@@ -18,6 +18,8 @@ void UMainCHAnimInstance::UpdateAnimProperties(float DeltaTime)
 
 		Speed = Velocity.Size();
 
+		Direction = CalculateDirection(Velocity, MainCharacter->GetActorRotation());
+
 		bIsFalling = MainCharacter->GetCharacterMovement()->IsFalling();
 
 		if (MainCharacter->GetCharacterMovement()->GetCurrentAcceleration().Size() > 0.f)
@@ -34,6 +36,8 @@ void UMainCHAnimInstance::UpdateAnimProperties(float DeltaTime)
 		bIsWeaponEquipped = MainCharacter->IsWeaponEquipped();
 
 		bIsAiming = MainCharacter->GetIsAiming();
+
+		Pitch = MainCharacter->GetBaseAimRotation().Pitch;
 	}
 }
 
