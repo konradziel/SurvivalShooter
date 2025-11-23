@@ -189,3 +189,13 @@ void AItem::SetItemProperties(EItemState State)
 		break;
 	}
 }
+
+bool AItem::CanBeUsed() const
+{
+	return false;
+}
+
+bool AItem::UseItem(AMainCharacter* MainCharacter)
+{
+	return false;
+}

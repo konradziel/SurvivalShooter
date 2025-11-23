@@ -66,9 +66,11 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* PickupAction;
 
-	void PickupItem();
+	void PickupInteractItem();
 
     void EquipActiveSlotItem();
+
+	void UseEquippedItem();
 
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* DropAction;

@@ -149,7 +149,7 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		Input->BindAction(RunAction, ETriggerEvent::Started, this, &AMainCharacter::RunStart);
 		Input->BindAction(RunAction, ETriggerEvent::Completed, this, &AMainCharacter::RunStop);
 
-		Input->BindAction(PickupAction, ETriggerEvent::Started, this, &AMainCharacter::PickupItem);
+		Input->BindAction(PickupAction, ETriggerEvent::Started, this, &AMainCharacter::PickupInteractItem);
 
 		Input->BindAction(DropAction, ETriggerEvent::Started, this, &AMainCharacter::DropActiveSlotItem);
 
@@ -252,7 +252,7 @@ void AMainCharacter::RunStop(const FInputActionValue& Value)
 	}
 }
 
-void AMainCharacter::PickupItem()
+void AMainCharacter::PickupInteractItem()
 {
 	UE_LOG(LogTemp, Warning, TEXT("PickupItem() called in MainCharacter"));
 	UE_LOG(LogTemp, Warning, TEXT("HitItem is: %s"), HitItem ? *HitItem->GetName() : TEXT("NULL"));
@@ -263,6 +263,10 @@ void AMainCharacter::PickupItem()
 
 		HitItem->PickUpItem();
 		EquipActiveSlotItem();
+	}
+	else if (EquippedItem && EquippedItem->CanBeUsed())
+	{
+		UseEquippedItem();
 	}
 }
 
@@ -286,6 +290,32 @@ void AMainCharacter::EquipActiveSlotItem()
 
     Slot.Item->OnEquipped(this);
     EquippedItem = Slot.Item;
+}
+
+void AMainCharacter::UseEquippedItem()
+{
+	if (!EquippedItem || !EquipmentComponent)
+	{
+		return;
+	}
+
+	if (!EquippedItem->CanBeUsed())
+	{
+		return;
+	}
+
+	if (EquippedItem->UseItem(this))
+	{
+		const int32 ActiveIndex = EquipmentComponent->GetActiveSlotIndex();
+		EquipmentComponent->RemoveItem(ActiveIndex, 1);
+
+		if (EquipmentComponent->IsSlotEmpty(ActiveIndex))
+		{
+			EquippedItem->SetActorHiddenInGame(true);
+			EquippedItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+			EquippedItem = nullptr;
+		}
+	}	
 }
 
 void AMainCharacter::DropActiveSlotItem()

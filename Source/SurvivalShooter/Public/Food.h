@@ -16,4 +16,10 @@ class SURVIVALSHOOTER_API AFood : public AItem
 
 public:
 	AFood();
+
+	virtual bool CanBeUsed() const;
+	virtual bool UseItem(class AMainCharacter* MainCharacter);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Food Properties")
+	float HealthRestored = 20.0f;
 };
