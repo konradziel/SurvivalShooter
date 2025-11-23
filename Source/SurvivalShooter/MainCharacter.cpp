@@ -11,6 +11,7 @@
 #include "Public/SanityComponent.h"
 #include "Public/EquipmentComponent.h"
 #include "Public/Weapon.h"
+#include "Public/Bed.h"
 #include "Components/WidgetComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 
@@ -99,7 +100,9 @@ void AMainCharacter::Tick(float DeltaTime)
 	IsUnderCrosshair(ItemUnderCrosshair);
 	if (ItemUnderCrosshair.bBlockingHit)
 	{
-		HitItem = Cast<AItem>(ItemUnderCrosshair.GetActor());
+		HitActor = ItemUnderCrosshair.GetActor();
+
+		HitItem = Cast<AItem>(HitActor);
 		if ((HitItem != LastHitItem) && (LastHitItem && LastHitItem->GetPickUpWidget())) 
 		{
 			LastHitItem->GetPickUpWidget()->SetVisibility(false);
@@ -110,6 +113,11 @@ void AMainCharacter::Tick(float DeltaTime)
 			HitItem->GetPickUpWidget()->SetVisibility(true);
 			LastHitItem = HitItem;
 		}
+	}
+	else
+	{
+		HitActor = nullptr;
+		HitItem = nullptr;
 	}
 
 	if (bIsAiming)
@@ -254,8 +262,13 @@ void AMainCharacter::RunStop(const FInputActionValue& Value)
 
 void AMainCharacter::PickupInteractItem()
 {
-	UE_LOG(LogTemp, Warning, TEXT("PickupItem() called in MainCharacter"));
-	UE_LOG(LogTemp, Warning, TEXT("HitItem is: %s"), HitItem ? *HitItem->GetName() : TEXT("NULL"));
+	UE_LOG(LogTemp, Warning, TEXT("PickupInteractItem() called in MainCharacter"));
+	UE_LOG(LogTemp, Warning, TEXT("HitActor is: %s"), HitActor ? *HitActor->GetName() : TEXT("NULL"));
+	
+	if (ABed* Bed = Cast<ABed>(HitActor))
+	{
+		Bed->SleepInBed(this);
+	}
 
 	if (HitItem && HitItem->CanBePickedUp())
 	{

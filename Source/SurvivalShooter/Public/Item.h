@@ -75,10 +75,8 @@ public:
 
 	virtual void SetItemProperties(EItemState State);
 
-	UFUNCTION(BlueprintCallable)
 	virtual bool CanBeUsed() const;
 
-	UFUNCTION(BlueprintCallable)
 	virtual bool UseItem(class AMainCharacter* MainCharacter);
 
 

@@ -150,6 +150,8 @@ private:
 	AItem* HitItem = nullptr;
 	AItem* EquippedItem = nullptr;
 
+	AActor* HitActor = nullptr;
+
 	FTimerHandle FireTimerHandle;
 	void FireWeapon();
 	
