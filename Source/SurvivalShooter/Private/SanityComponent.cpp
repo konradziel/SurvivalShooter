@@ -41,7 +41,7 @@ float USanityComponent::GetMaxSanity() const
 // Mine 24h is 30m in game
 void USanityComponent::UpdateSanityOnSleep(int SleepTime)
 {
-	Sanity = SleepTime * 11;
+	Sanity += SleepTime * 11;
 	Sanity = FMath::Clamp(Sanity, 0.0f, MaxSanity);
 
 	OnSanityChanged.Broadcast(Sanity, MaxSanity);

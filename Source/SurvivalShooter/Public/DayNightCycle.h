@@ -1,4 +1,4 @@
-// Taken from Mayan Grover blog on Outscal
+// Taken and adapted from Mayan Grover blog on Outscal
 // https://outscal.com/blog/day-night-cycle-ue5 13.10.2025
 // With added be me things for sleep system
 
@@ -33,11 +33,11 @@ public:
 	ADirectionalLight* MoonLight;
 	
 	// Current time on a 24-hour clock
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Day/Night Cycle", meta = (ClampMin = "0.0", ClampMax = "24.0"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Day/Night Cycle", meta = (ClampMin = "0.0", ClampMax = "24.0"))
 	float TimeOfDay;
 
 	// The duration of a full day in minutes
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Day/Night Cycle")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Day/Night Cycle")
 	float DayDurationMinutes = 30.0f;
 	
 	void SetTimeOfDay(float NewTimeOfDay);

@@ -6,6 +6,7 @@
 #include "Components/WidgetComponent.h"
 #include "../MainCharacter.h"
 #include "DayNightCycle.h"
+#include "SanityComponent.h"
 
 // Sets default values
 ABed::ABed()
@@ -50,15 +51,25 @@ void ABed::SleepInBed(AMainCharacter* MainCharacter)
 		return;
 	}
 
+	USanityComponent* SanityComp = MainCharacter->FindComponentByClass<USanityComponent>();
+	
+	if (!SanityComp)
+	{
+		return;
+	}
+
 	float CurrentTime = DayNightCycle->GetTimeOfDay();
 	
-	if (CurrentTime >= 5.0f && CurrentTime <= 12.0f)
+	if (CurrentTime > 14.0f && CurrentTime < 20.0f)
 	{
-		DayNightCycle->SetTimeOfDay(CurrentTime + 8.0f);
+		SanityComp->UpdateSanityOnSleep(20.0f - CurrentTime);
+		DayNightCycle->SetTimeOfDay(20.0f);		
 	}
-	else if (CurrentTime > 12.0f)
+	else if (CurrentTime >= 6.0f && CurrentTime <= 14.0f)
 	{
-		DayNightCycle->SetTimeOfDay(20.0f);
+		SanityComp->UpdateSanityOnSleep(7.0f);
+		DayNightCycle->SetTimeOfDay(CurrentTime + 7.0f);
 	}	
+	
 }
 
