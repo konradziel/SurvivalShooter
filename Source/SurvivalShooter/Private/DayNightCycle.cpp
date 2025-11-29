@@ -50,11 +50,25 @@ void ADayNightCycle::UpdateSunPosition()
     if (SunLight)
     {
         // Convert TimeOfDay (0-24) to a rotation degree (0-360)
-        // We subtract 180 degrees to make 0 time a sunrise
+        // We subtract 380 degrees to make 6 time a sunrise
         float SunAngle = ((TimeOfDay + 6.0f) / 24.0f) * 360.0f;
+        
+		// This if statement adjusts the pitch of the sun to create a more realistic arc
+        if (SunAngle <= 180)
+        {
+            SunPitch = SunAngle;
+        }
+        else if (SunAngle > 180 && SunAngle < 270)
+        {
+            SunPitch = ((TimeOfDay / 2 + 9.0f) / 24.0f) * 360.0f;
+        }
+		else if (SunAngle >= 270)
+        {
+            SunPitch = (((24 - TimeOfDay) / 2 + 9.0f) / 24.0f) * 360.0f;
+        }
 
-        FRotator NewRotation = FRotator(SunAngle - 360.0f, 112.0f, 118.0f);
-        SunLight->SetActorRotation(NewRotation);
+        FRotator SunRotation = FRotator(SunPitch, SunAngle, 118.0f);
+        SunLight->SetActorRotation(SunRotation);
 
         float SunIntensity = 0.0f;
         if (SunAngle >= 180.0f && SunAngle < 360.0f)
@@ -71,11 +85,25 @@ void ADayNightCycle::UpdateSunPosition()
 
     if (MoonLight)
     {
-        float MoonAngle = ((TimeOfDay + 6.0f) / 24.0f) * 360.0f;
-        FRotator MoonRotation = FRotator(MoonAngle, 112.0f, 118.0f);
+        float MoonAngle = ((TimeOfDay) / 24.0f) * 360.0f;
+        
+        if (MoonAngle <= 90)
+        {
+            MoonPitch = -((TimeOfDay / 2 + 9.0f) / 24.0f) * 360.0f;
+        }
+        else if (MoonAngle > 90 && MoonAngle < 180)
+        {
+            MoonPitch = MoonAngle;            
+        }
+        else if (MoonAngle >= 270)
+        {
+            MoonPitch = -(((24 - TimeOfDay) / 2 + 9.0f) / 24.0f) * 360.0f;            
+        }
+
+        FRotator MoonRotation = FRotator(MoonPitch, MoonAngle - 90.0f, 118.0f);
         MoonLight->SetActorRotation(MoonRotation);
 
-        float MoonIntensity = 0.0f;
+        float MoonIntensity = 0.1f;
 
         if (ULightComponent* LightComp = MoonLight->GetLightComponent())
         {

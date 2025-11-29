@@ -46,6 +46,9 @@ private:
 	// Function to update the sun's position based on TimeOfDay
 	void UpdateSunPosition();
 
+	float SunPitch = 0.0f;
+	float MoonPitch = 0.0f;
+
 public:
 	FORCEINLINE float GetTimeOfDay() const { return TimeOfDay; };
 };
