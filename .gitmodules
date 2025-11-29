@@ -1,0 +1,3 @@
+[submodule "Content/LicensedAssets"]
+    path = Content/LicensedAssets
+    url = https://github.com/konradziel/SurvivalShooterLicensedAssets.git
