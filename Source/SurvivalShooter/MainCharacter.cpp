@@ -1,4 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
+// References that helped with Movement:
+// https://dev.epicgames.com/documentation/en-us/unreal-engine/enhanced-input-in-unreal-engine?application_version official docs, access date 11.10.2025
+
 
 
 #include "MainCharacter.h"
@@ -19,13 +22,14 @@
 // Sets default values
 AMainCharacter::AMainCharacter()
 {
-	DefaultWalkSpeed = 350.f;
-	DefaultRunSpeed = 700.f;
+	DefaultWalkSpeed = 250.f;
+	DefaultRunSpeed = 600.f;
 
 	CameraZoomInterpSpeed = 20.f;
 
-	GetCharacterMovement()->JumpZVelocity = 700.f;
-	GetCharacterMovement()->AirControl = 0.35f;
+	GetCharacterMovement()->JumpZVelocity = 600.f;
+	GetCharacterMovement()->AirControl = 0.5f;
+	GetCharacterMovement()->GravityScale = 1.5f;
 	GetCharacterMovement()->MaxWalkSpeed = DefaultWalkSpeed;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;

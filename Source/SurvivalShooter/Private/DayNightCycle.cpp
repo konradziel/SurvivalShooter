@@ -1,6 +1,6 @@
 // Taken and adapted from Mayan Grover blog on Outscal
-// https://outscal.com/blog/day-night-cycle-ue5 13.10.2025
-// With added be me things for sleep system
+// https://outscal.com/blog/day-night-cycle-ue5 by Mayan Grover, access date 13.10.2025
+// With added by me things for sleep system and sun and moon control
 
 #include "DayNightCycle.h"
 #include "Components/LightComponent.h"

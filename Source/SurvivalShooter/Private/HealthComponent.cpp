@@ -1,4 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
+// References that helped with HealthComponent:
+// https://dev.epicgames.com/community/learning/tutorials/VpwX/unreal-engine-health-bars-in-unreal-5-part-1-creating-a-health-component-in-c by Valente Game Dev, access date 13.10.2025
 
 
 #include "HealthComponent.h"

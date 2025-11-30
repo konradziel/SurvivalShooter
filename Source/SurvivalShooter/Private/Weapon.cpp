@@ -1,4 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
+// References that helped with Niagara setup:
+// https://dev.epicgames.com/community/learning/tutorials/Gx5j/using-niagara-in-c by JohnX451, access date 30.11.2025 
+// https://dev.epicgames.com/documentation/en-us/unreal-engine/how-to-create-a-beam-effect-in-niagara-for-unreal-engine official docs, acces date 30.11.2025
 
 
 #include "Weapon.h"
@@ -8,7 +11,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/BoxComponent.h"
 #include "Components/WidgetComponent.h"
-
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 
 AWeapon::AWeapon()
 {
@@ -25,6 +29,11 @@ void AWeapon::Shoot(AMainCharacter* Character)
 		return;
 	}
 
+	if (FireSound)
+	{
+		UGameplayStatics::PlaySound2D(this, FireSound);
+	}
+
 	CurrentAmmoInMagazine--;
 
 	FHitResult CrosshairHit;
@@ -35,6 +44,16 @@ void AWeapon::Shoot(AMainCharacter* Character)
 	FVector ShootingSocketLocation = GetShootingSocketLocation();
 	FVector ShootingDirection = (Target - ShootingSocketLocation).GetSafeNormal();
 	FVector TraceEnd = ShootingSocketLocation + (ShootingDirection * 50000.f);
+
+	if (FireFlash)
+	{
+		UNiagaraComponent* NiagaraCompFlash = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			GetWorld(),
+			FireFlash,
+			ShootingSocketLocation,
+			ShootingDirection.Rotation()
+		);		
+	}
 
 	FHitResult WeaponHit;
 	FCollisionQueryParams QueryParams;
@@ -48,13 +67,41 @@ void AWeapon::Shoot(AMainCharacter* Character)
 		ECollisionChannel::ECC_Visibility,
 		QueryParams
 	);
+
 	UE_LOG(LogTemp, Warning, TEXT("Shoot: "), bHit);
 	if (bHit)
 	{
-		DrawDebugSphere(GetWorld(), WeaponHit.Location, 10.0f, 12, FColor::Red, false, 1.0f);
-		DrawDebugLine(GetWorld(), ShootingSocketLocation, WeaponHit.Location, FColor::Red, false, 1.0f, 0, 2.0f);
+		if (FireImpact)
+		{
+			UNiagaraComponent* NiagaraCompImpact = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+				GetWorld(),
+				FireImpact,
+				WeaponHit.Location
+			);
+		}
 	}
-	
+
+	if (FireBeam)
+	{
+		UNiagaraComponent* NiagaraCompBeam = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			GetWorld(),
+			FireBeam,
+			ShootingSocketLocation,
+			ShootingDirection.Rotation(),
+			FVector(1.f),
+			false,
+			true
+		);
+
+		if (NiagaraCompBeam)
+		{
+			FVector EndPoint = bHit ? WeaponHit.Location : TraceEnd;
+
+			NiagaraCompBeam->SetVariableVec3(FName("BeamEnd"), EndPoint);
+			UE_LOG(LogTemp, Warning, TEXT("Setting BeamEnd to: %s"), *EndPoint.ToString());
+			NiagaraCompBeam->Activate(true);
+		}
+	}	
 }
 
 FVector AWeapon::GetShootingSocketLocation() const
