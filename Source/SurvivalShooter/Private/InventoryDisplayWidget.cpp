@@ -27,6 +27,25 @@ void UInventoryDisplayWidget::UpdateSlotWidget(int32 SlotIndex, const FEquipment
 {
     FSlotWidget& SlotWidget = SlotWidgets[SlotIndex];
 
+    UUserWidget* WidgetInst = nullptr;
+    if (SlotWidget.QuantityText) WidgetInst = Cast<UUserWidget>(SlotWidget.QuantityText->GetOuter()->GetOuter());
+    else if (SlotWidget.ItemIcon) WidgetInst = Cast<UUserWidget>(SlotWidget.ItemIcon->GetOuter()->GetOuter());
+
+    if (WidgetInst && TargetEquipmentComponent.IsValid())
+    {
+        FObjectProperty* CompProp = CastField<FObjectProperty>(WidgetInst->GetClass()->FindPropertyByName(TEXT("OwningComponent")));
+        if (CompProp)
+        {
+            CompProp->SetObjectPropertyValue_InContainer(WidgetInst, TargetEquipmentComponent.Get());
+        }
+
+        FIntProperty* IndexProp = CastField<FIntProperty>(WidgetInst->GetClass()->FindPropertyByName(TEXT("SlotIndex")));
+        if (IndexProp)
+        {
+            IndexProp->SetPropertyValue_InContainer(WidgetInst, SlotIndex);
+        }
+    }
+
     if (SlotData.bIsEmpty)
     {
         // Hide slot content

@@ -105,6 +105,12 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnActiveSlotChanged OnActiveSlotChanged;
 
+	UFUNCTION(BlueprintCallable)
+	bool CanDropOnSlot(UEquipmentComponent* SourceComponent, int32 SourceSlotIndex, int32 TargetSlotIndex) const;
+
+	UFUNCTION(BlueprintCallable)
+	bool MoveItem(UEquipmentComponent* SourceComponent, int32 SourceSlotIndex, int32 TargetSlotIndex);
+
 private:
 	int32 ActiveSlotIndex = 0;
 

@@ -197,4 +197,55 @@ bool UEquipmentComponent::SetActiveSlot(int32 SlotIndex)
 	return true;
 }
 
+bool UEquipmentComponent::CanDropOnSlot(UEquipmentComponent* SourceComponent, int32 SourceSlotIndex, int32 TargetSlotIndex) const
+{
+	if (!SourceComponent || SourceSlotIndex < 0 || TargetSlotIndex < 0)
+	{
+		return false;
+	}
+
+	if (SourceComponent == this)
+	{
+		return SourceSlotIndex != TargetSlotIndex;
+	}
+
+	FEquipmentSlot SourceSlot = SourceComponent->GetSlot(SourceSlotIndex);
+	FEquipmentSlot TargetSlot = GetSlot(TargetSlotIndex);
+
+	if (TargetSlot.bIsEmpty)
+	{
+		return true;
+	}
+	else
+	{
+		// Only same class items
+		return SourceSlot.Item->GetClass() == TargetSlot.Item->GetClass();
+	}
+
+}
+
+bool UEquipmentComponent::MoveItem(UEquipmentComponent* SourceComponent, int32 SourceSlotIndex, int32 TargetSlotIndex)
+{
+	if (!CanDropOnSlot(SourceComponent, SourceSlotIndex, TargetSlotIndex))
+	{
+		return false;
+	}
+
+	if (SourceComponent == this)
+	{
+		return SwapItems(SourceSlotIndex, TargetSlotIndex);
+	}
+
+	FEquipmentSlot SourceSlot = SourceComponent->GetSlot(SourceSlotIndex);
+
+	FPickupResult Result = AddItem(SourceSlot.Item, SourceSlot.Quantity);
+	if (Result.bSuccess && Result.QuantityAdded > 0)
+	{
+		SourceComponent->RemoveItem(SourceSlotIndex, Result.QuantityAdded);
+		return true;
+	}
+	
+	return false;
+}
+
 
