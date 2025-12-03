@@ -4,14 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "InteractableActor.h"
 #include "Bed.generated.h"
 
-class ADayNightCycle;
-class AMainCharacter;
-
 UCLASS()
-class SURVIVALSHOOTER_API ABed : public AInteractableActor
+class SURVIVALSHOOTER_API ABed : public AActor
 {
 	GENERATED_BODY()
 	
@@ -24,11 +20,18 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	virtual void Interact(AMainCharacter* MainCharacter) override;
-
-	void SleepInBed(AMainCharacter* MainCharacter);
+	void SleepInBed(class AMainCharacter* MainCharacter);
 
 private:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Bed Properties", meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* BedMesh;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Bed Properties", meta = (AllowPrivateAccess = "true"))
-	ADayNightCycle* DayNightCycle;
+	class UBoxComponent* CollisionBox;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Bed Properties", meta = (AllowPrivateAccess = "true"))
+	class UWidgetComponent* SleepWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Bed Properties", meta = (AllowPrivateAccess = "true"))
+	class ADayNightCycle* DayNightCycle;
 };

@@ -5,21 +5,19 @@ UEquipmentComponent::UEquipmentComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 
+	// Initialization of slots
+	EquipmentSlots.SetNum(MaxSlots);
+	for (int32 i = 0; i < MaxSlots; i++)
+	{
+		EquipmentSlots[i] = FEquipmentSlot();
+	}
 }
 
 
 // Called when the game starts
 void UEquipmentComponent::BeginPlay()
 {
-	Super::BeginPlay();
-
-	// Initialization of slots
-	// Moved to BeginPlay to allow changing MaxSlots in editor
-	EquipmentSlots.SetNum(MaxSlots);
-	for (int32 i = 0; i < MaxSlots; i++)
-	{
-		EquipmentSlots[i] = FEquipmentSlot();
-	}
+	Super::BeginPlay();	
 }
 
 FPickupResult UEquipmentComponent::AddItem(AItem* ItemToAdd, int32 Quantity)

@@ -14,7 +14,7 @@
 #include "Public/SanityComponent.h"
 #include "Public/EquipmentComponent.h"
 #include "Public/Weapon.h"
-#include "Public/InteractableActor.h"
+#include "Public/Bed.h"
 #include "Components/WidgetComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 
@@ -100,50 +100,28 @@ void AMainCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	FHitResult ActorUnderCrosshair;
-	IsUnderCrosshair(ActorUnderCrosshair);
-	if (ActorUnderCrosshair.bBlockingHit)
+	FHitResult ItemUnderCrosshair;
+	IsUnderCrosshair(ItemUnderCrosshair);
+	if (ItemUnderCrosshair.bBlockingHit)
 	{
-		HitActor = ActorUnderCrosshair.GetActor();
+		HitActor = ItemUnderCrosshair.GetActor();
 
-		if ((HitActor != LastHitActor) && LastHitActor)
+		HitItem = Cast<AItem>(HitActor);
+		if ((HitItem != LastHitItem) && (LastHitItem && LastHitItem->GetPickUpWidget())) 
 		{
-			if (AItem* LastItem = Cast<AItem>(LastHitActor))
-			{
-				if (LastItem->GetPickUpWidget())
-				{
-					LastItem->GetPickUpWidget()->SetVisibility(false);
-				}
-			}
-			else if (AInteractableActor* LastInteractable = Cast<AInteractableActor>(LastHitActor))
-			{
-				if (LastInteractable->GetInteractWidget())
-				{
-					LastInteractable->GetInteractWidget()->SetVisibility(false);
-				}
-			}
+			LastHitItem->GetPickUpWidget()->SetVisibility(false);
 		}
 
-		if (AItem* CurrentItem = Cast<AItem>(HitActor))
+		if (HitItem && HitItem->GetPickUpWidget())
 		{
-			if (CurrentItem->GetPickUpWidget())
-			{
-				CurrentItem->GetPickUpWidget()->SetVisibility(true);
-			}
+			HitItem->GetPickUpWidget()->SetVisibility(true);
+			LastHitItem = HitItem;
 		}
-		else if (AInteractableActor* CurrentInteractable = Cast<AInteractableActor>(HitActor))
-		{
-			if (CurrentInteractable->GetInteractWidget())
-			{
-				CurrentInteractable->GetInteractWidget()->SetVisibility(true);
-			}
-		}
-
-		LastHitActor = HitActor;
 	}
 	else
 	{
 		HitActor = nullptr;
+		HitItem = nullptr;
 	}
 
 	if (bIsAiming)
@@ -291,25 +269,21 @@ void AMainCharacter::PickupInteractItem()
 	UE_LOG(LogTemp, Warning, TEXT("PickupInteractItem() called in MainCharacter"));
 	UE_LOG(LogTemp, Warning, TEXT("HitActor is: %s"), HitActor ? *HitActor->GetName() : TEXT("NULL"));
 	
-	if (AInteractableActor* InteractableActor = Cast<AInteractableActor>(HitActor))
+	if (ABed* Bed = Cast<ABed>(HitActor))
 	{
-		InteractableActor->Interact(this);
-		return;
+		Bed->SleepInBed(this);
 	}
 
-	if (AItem* Item = Cast<AItem>(HitActor))
+	if (HitItem && HitItem->CanBePickedUp())
 	{
-		if (Item->CanBePickedUp())
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Item can be picked up, calling PickUpItem()"));
+		UE_LOG(LogTemp, Warning, TEXT("Item can be picked up, calling PickUpItem()"));
 
-			Item->PickUpItem();
-			EquipActiveSlotItem();
-		}
-		else if (EquippedItem && EquippedItem->CanBeUsed())
-		{
-			UseEquippedItem();
-		}
+		HitItem->PickUpItem();
+		EquipActiveSlotItem();
+	}
+	else if (EquippedItem && EquippedItem->CanBeUsed())
+	{
+		UseEquippedItem();
 	}
 }
 

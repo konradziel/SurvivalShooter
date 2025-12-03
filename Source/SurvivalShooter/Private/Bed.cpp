@@ -2,6 +2,8 @@
 
 
 #include "Bed.h"
+#include "Components/BoxComponent.h"
+#include "Components/WidgetComponent.h"
 #include "../MainCharacter.h"
 #include "DayNightCycle.h"
 #include "SanityComponent.h"
@@ -11,6 +13,21 @@ ABed::ABed()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
+
+	UStaticMeshComponent* StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ItemMesh"));
+	BedMesh = StaticMesh;
+	SetRootComponent(BedMesh);
+
+	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
+	CollisionBox->SetupAttachment(BedMesh);
+	CollisionBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	CollisionBox->SetCollisionResponseToChannel(
+		ECollisionChannel::ECC_Visibility,
+		ECollisionResponse::ECR_Block);
+
+	SleepWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("PickUpWidget"));
+	SleepWidget->SetupAttachment(BedMesh);
+	SleepWidget->SetVisibility(false);
 }
 
 // Called when the game starts or when spawned
@@ -25,11 +42,6 @@ void ABed::BeginPlay()
 	{
 		DayNightCycle = Cast<ADayNightCycle>(FoundActors[0]);
 	}
-}
-
-void ABed::Interact(AMainCharacter* MainCharacter)
-{
-	SleepInBed(MainCharacter);
 }
 
 void ABed::SleepInBed(AMainCharacter* MainCharacter)
