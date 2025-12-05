@@ -439,7 +439,7 @@ void AMainCharacter::StartFire()
 			FireTimerHandle,
 			this,
 			&AMainCharacter::FireWeapon,
-			Weapon->FireRate,
+			Weapon->GetFireRate(),
 			true
 		);
 	}

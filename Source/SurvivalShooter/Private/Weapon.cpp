@@ -13,6 +13,7 @@
 #include "Components/WidgetComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
+#include "BulletHitInterface.h"
 
 AWeapon::AWeapon()
 {
@@ -52,7 +53,7 @@ void AWeapon::Shoot(AMainCharacter* Character)
 			FireFlash,
 			ShootingSocketLocation,
 			ShootingDirection.Rotation()
-		);		
+		);
 	}
 
 	FHitResult WeaponHit;
@@ -71,6 +72,50 @@ void AWeapon::Shoot(AMainCharacter* Character)
 	UE_LOG(LogTemp, Warning, TEXT("Shoot: "), bHit);
 	if (bHit)
 	{
+		AActor* HitActor = WeaponHit.GetActor();
+		// Check if the hit actor implements the bullet hit interface
+
+		if (HitActor)
+		{
+			if (WeaponHit.BoneName == FName("head"))
+			{
+				UGameplayStatics::ApplyPointDamage(
+					HitActor,
+					HeadhShotDamage,
+					ShootingDirection,
+					WeaponHit,
+					Character->GetController(),
+					this,
+					UDamageType::StaticClass()
+				);
+			}
+			else
+			{
+				UGameplayStatics::ApplyPointDamage(
+					HitActor,
+					Damage,
+					ShootingDirection,
+					WeaponHit,
+					Character->GetController(),
+					this,
+					UDamageType::StaticClass()
+				);
+			}
+
+			IBulletHitInterface* BulletHitInterface = Cast<IBulletHitInterface>(HitActor);
+
+			if (BulletHitInterface)
+			{
+				BulletHitInterface->BulletHit_Implementation(WeaponHit);
+			} else {
+				UGameplayStatics::PlaySoundAtLocation(
+					this,
+					HitSound,
+					WeaponHit.Location
+				);
+			}			
+		}
+
 		if (FireImpact)
 		{
 			UNiagaraComponent* NiagaraCompImpact = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
@@ -89,7 +134,7 @@ void AWeapon::Shoot(AMainCharacter* Character)
 			ShootingSocketLocation,
 			ShootingDirection.Rotation(),
 			FVector(1.f),
-			false,
+			true,
 			true
 		);
 
@@ -101,7 +146,7 @@ void AWeapon::Shoot(AMainCharacter* Character)
 			UE_LOG(LogTemp, Warning, TEXT("Setting BeamEnd to: %s"), *EndPoint.ToString());
 			NiagaraCompBeam->Activate(true);
 		}
-	}	
+	}
 }
 
 FVector AWeapon::GetShootingSocketLocation() const
@@ -150,6 +195,12 @@ bool AWeapon::Reload(AMainCharacter* Character)
 	{
 		CurrentAmmoInMagazine = AmmoToLoad;
 		UE_LOG(LogTemp, Warning, TEXT("Reloaded: %d/%d"), CurrentAmmoInMagazine, MagazineCapacity);
+		
+		if (ReloadSound)
+		{
+			UGameplayStatics::PlaySound2D(this, ReloadSound);
+		}
+
 		return true;
 	}
 
