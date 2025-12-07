@@ -9,6 +9,8 @@
 
 class UNiagaraSystem;
 class USoundCue;
+class UBehaviorTree;
+class AEnemyAIController;
 
 class UHealthComponent;
 
@@ -20,6 +22,8 @@ class SURVIVALSHOOTER_API AEnemy : public ACharacter, public IBulletHitInterface
 public:
 	// Sets default values for this character's properties
 	AEnemy();
+
+	virtual void PossessedBy(AController* NewController) override;
 
 protected:
 	// Called when the game starts or when spawned
@@ -33,6 +37,12 @@ protected:
 
 	UFUNCTION()
 	void Die();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UBehaviorTree> BehaviorTree;
+
+	UPROPERTY()
+	TObjectPtr<AEnemyAIController> EnemyAIController;
 
 public:	
 	// Called every frame

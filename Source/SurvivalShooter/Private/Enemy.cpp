@@ -3,6 +3,7 @@
 
 #include "Enemy.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "HealthComponent.h"
 #include "Sound/SoundCue.h"
 #include "Kismet/GameplayStatics.h"
@@ -10,6 +11,10 @@
 #include "NiagaraComponent.h"
 #include "Components/WidgetComponent.h"
 #include "HealthBarWidget.h"
+#include "AI/EnemyAIController.h"
+#include "AIController.h"
+#include "BehaviorTree/BehaviorTree.h"
+#include "BehaviorTree/BlackboardComponent.h"
 
 // Sets default values
 AEnemy::AEnemy()
@@ -20,12 +25,27 @@ AEnemy::AEnemy()
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
 }
 
+void AEnemy::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	EnemyAIController = Cast<AEnemyAIController>(NewController);
+
+	EnemyAIController->GetBlackboardComponent()->InitializeBlackboard(*BehaviorTree->BlackboardAsset);
+	EnemyAIController->RunBehaviorTree(BehaviorTree);
+}
+
 // Called when the game starts or when spawned
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	GetMesh()->SetCollisionObjectTypee(ECollisionChannel::ECC_WorldDynamic);
+	GetMesh()->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetMesh()->SetGenerateOverlapEvents(false);
