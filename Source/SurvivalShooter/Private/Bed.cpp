@@ -73,3 +73,17 @@ void ABed::SleepInBed(AMainCharacter* MainCharacter)
 	
 }
 
+void ABed::SetWidgetVisibility(bool bIsVisible)
+{
+	float CurrentTime = DayNightCycle->GetTimeOfDay();
+
+	if (SleepWidget && CurrentTime >= 6.0f && CurrentTime < 20.0f)
+	{
+		SleepWidget->SetVisibility(bIsVisible);
+	}
+}
+
+void ABed::Interact(AMainCharacter* Character)
+{
+	SleepInBed(Character);
+}

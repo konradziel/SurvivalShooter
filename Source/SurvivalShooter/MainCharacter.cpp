@@ -106,16 +106,23 @@ void AMainCharacter::Tick(float DeltaTime)
 	{
 		HitActor = ItemUnderCrosshair.GetActor();
 
-		HitItem = Cast<AItem>(HitActor);
-		if ((HitItem != LastHitItem) && (LastHitItem && LastHitItem->GetPickUpWidget())) 
+		bool bImplementsInteractWidget = HitActor && HitActor->Implements<UInteractWidgetInterface>();
+
+		if ((HitActor != LastHitActor) && LastHitActor)
 		{
-			LastHitItem->GetPickUpWidget()->SetVisibility(false);
+			if (IInteractWidgetInterface* Interface = Cast<IInteractWidgetInterface>(LastHitActor))
+			{
+				Interface->SetWidgetVisibility(false);
+			}
 		}
 
-		if (HitItem && HitItem->GetPickUpWidget())
+		if (bImplementsInteractWidget)
 		{
-			HitItem->GetPickUpWidget()->SetVisibility(true);
-			LastHitItem = HitItem;
+			if (IInteractWidgetInterface* Interface = Cast<IInteractWidgetInterface>(HitActor))
+			{
+				Interface->SetWidgetVisibility(true);
+			}
+			LastHitActor = HitActor;
 		}
 	}
 	else
@@ -268,17 +275,21 @@ void AMainCharacter::PickupInteractItem()
 {
 	UE_LOG(LogTemp, Warning, TEXT("PickupInteractItem() called in MainCharacter"));
 	UE_LOG(LogTemp, Warning, TEXT("HitActor is: %s"), HitActor ? *HitActor->GetName() : TEXT("NULL"));
-	
-	if (ABed* Bed = Cast<ABed>(HitActor))
+
+
+	if (HitActor && HitActor->Implements<UInteractWidgetInterface>())
 	{
-		Bed->SleepInBed(this);
+		if (IInteractWidgetInterface* Interface = Cast<IInteractWidgetInterface>(HitActor))
+		{
+			Interface->Interact(this);
+		}
 	}
+
+	HitItem = Cast<AItem>(HitActor);
+	LastHitItem = Cast<AItem>(LastHitActor);
 
 	if (HitItem && HitItem->CanBePickedUp())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Item can be picked up, calling PickUpItem()"));
-
-		HitItem->PickUpItem();
 		EquipActiveSlotItem();
 	}
 	else if (EquippedItem && EquippedItem->CanBeUsed())

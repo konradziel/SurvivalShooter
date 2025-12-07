@@ -2,7 +2,14 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "InteractWidgetInterface.h"
 #include "Item.generated.h"
+
+class UWidgetComponent;
+class UBoxComponent;
+class UMeshComponent;
+
+class AMainCharacter;
 
 UENUM(BlueprintType)
 enum class EItemState : uint8
@@ -23,7 +30,7 @@ enum class EItemType : uint8
 };
 
 UCLASS()
-class SURVIVALSHOOTER_API AItem : public AActor
+class SURVIVALSHOOTER_API AItem : public AActor, public IInteractWidgetInterface
 {
 	GENERATED_BODY()
 	
@@ -66,7 +73,7 @@ public:
 	virtual void OnPickup();
 
     // Called when the item is equipped by a character
-    virtual void OnEquipped(class AMainCharacter* OwnerCharacter);
+    virtual void OnEquipped(AMainCharacter* OwnerCharacter);
 
 	virtual void OnDropped(const FVector& DropLocation);
 
@@ -77,7 +84,11 @@ public:
 
 	virtual bool CanBeUsed() const;
 
-	virtual bool UseItem(class AMainCharacter* MainCharacter);
+	virtual bool UseItem(AMainCharacter* MainCharacter);
+
+	virtual void SetWidgetVisibility(bool bIsVisible) override;
+
+	virtual void Interact(AMainCharacter* MainCharacter) override;
 
 
 private:
@@ -85,10 +96,10 @@ private:
 	UMeshComponent* ItemMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
-	class UBoxComponent* CollisionBox;
+	UBoxComponent* CollisionBox;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
-	class UWidgetComponent* PickUpWidget;
+	UWidgetComponent* PickUpWidget;
 
 public:
 	FORCEINLINE UWidgetComponent* GetPickUpWidget() const { return PickUpWidget; };

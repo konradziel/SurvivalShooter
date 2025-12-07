@@ -199,3 +199,16 @@ bool AItem::UseItem(AMainCharacter* MainCharacter)
 {
 	return false;
 }
+
+void AItem::SetWidgetVisibility(bool bIsVisible)
+{
+	if (PickUpWidget)
+	{
+		PickUpWidget->SetVisibility(bIsVisible);
+	}
+}
+
+void AItem::Interact(AMainCharacter* MainCharacter)
+{
+	PickUpItem();
+}

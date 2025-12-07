@@ -124,6 +124,11 @@ void AWeapon::Shoot(AMainCharacter* Character)
 				WeaponHit.Location
 			);
 		}
+
+		UE_LOG(LogTemp, Error, TEXT("BLOCKED BY: %s (Component: %s)"),
+			*WeaponHit.GetActor()->GetName(),
+			*WeaponHit.GetComponent()->GetName()
+		);
 	}
 
 	if (FireBeam)
