@@ -10,6 +10,7 @@
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Components/SphereComponent.h"
 #include "HealthBarWidget.h"
 #include "AI/EnemyAIController.h"
 #include "AIController.h"
@@ -19,10 +20,16 @@
 // Sets default values
 AEnemy::AEnemy()
 {
+	AttackLeft = TEXT("AttackLeft");
+	AttackRight = TEXT("AttackRight");
+	AttackBoth = TEXT("AttackBoth");
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
+
+	AttackRangeSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AttackRangeSphere"));
+	AttackRangeSphere->SetupAttachment(RootComponent);
 }
 
 void AEnemy::PossessedBy(AController* NewController)
@@ -62,6 +69,9 @@ void AEnemy::BeginPlay()
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
+
+	AttackRangeSphere->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::AttackRangeOverlap);
+	AttackRangeSphere->OnComponentEndOverlap.AddDynamic(this, &AEnemy::AttackRangeEndOverlap);
 }
 
 // Called every frame
@@ -127,5 +137,80 @@ void AEnemy::Die()
 	GetMesh()->SetSimulatePhysics(true);
 
 	SetLifeSpan(5.0f);
+}
+
+void AEnemy::AttackRangeOverlap(
+	UPrimitiveComponent* OverlappedComponent,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex,
+	bool bFromSweep,
+	const FHitResult& SweepResult
+)
+{
+	if (OtherActor == nullptr)
+	{
+		return;
+	}
+
+	auto MainCharacter = Cast<ACharacter>(OtherActor);
+	if (MainCharacter)
+	{
+		bInAttackRange = true;
+		if (EnemyAIController)
+		{
+			EnemyAIController->GetBlackboardComponent()->SetValueAsBool(TEXT("InAttackRange"), true);
+		}
+	}
+	
+}
+
+void AEnemy::AttackRangeEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (OtherActor == nullptr)
+	{
+		return;
+	}
+
+	auto MainCharacter = Cast<ACharacter>(OtherActor);
+	if (MainCharacter)
+	{
+		bInAttackRange = false;
+		if (EnemyAIController)
+		{
+			EnemyAIController->GetBlackboardComponent()->SetValueAsBool(TEXT("InAttackRange"), false);
+		}
+	}
+}
+
+void AEnemy::PlayAttackMontage(FName SectionName, float PlayRate)
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && AttackMontage)
+	{
+		AnimInstance->Montage_Play(AttackMontage, PlayRate);
+		AnimInstance->Montage_JumpToSection(SectionName, AttackMontage);
+	}
+}
+
+FName AEnemy::GetAttackSectionName()
+{
+	FName SectionName;
+	const int32 Section{ FMath::RandRange(0, 2) };
+
+	switch (Section)
+	{
+	case 0:
+		SectionName = AttackLeft;
+		break;
+	case 1:
+		SectionName = AttackRight;
+		break;
+	case 2:
+		SectionName = AttackBoth;
+		break;
+	}
+
+	return SectionName;
 }
 

@@ -11,6 +11,8 @@ class UNiagaraSystem;
 class USoundCue;
 class UBehaviorTree;
 class AEnemyAIController;
+class USphereComponent;
+class UAnimMontage;
 
 class UHealthComponent;
 
@@ -43,6 +45,43 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<AEnemyAIController> EnemyAIController;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	bool bInAttackRange = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	USphereComponent* AttackRangeSphere;
+
+	UFUNCTION()
+	void AttackRangeOverlap(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult
+	);
+
+	UFUNCTION()
+	void AttackRangeEndOverlap(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex
+	);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* AttackMontage;
+
+	FName AttackLeft;
+	FName AttackRight;
+	FName AttackBoth;
+
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	void PlayAttackMontage(FName SectionName, float PlayRate);
+
+	UFUNCTION(BlueprintPure)
+	FName GetAttackSectionName();
 
 public:	
 	// Called every frame
