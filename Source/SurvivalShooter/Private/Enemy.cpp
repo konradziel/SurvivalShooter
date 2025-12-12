@@ -11,6 +11,7 @@
 #include "NiagaraComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Components/SphereComponent.h"
+#include "Components/BoxComponent.h"
 #include "HealthBarWidget.h"
 #include "AI/EnemyAIController.h"
 #include "AIController.h"
@@ -30,6 +31,11 @@ AEnemy::AEnemy()
 
 	AttackRangeSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AttackRangeSphere"));
 	AttackRangeSphere->SetupAttachment(RootComponent);
+
+	RightHandBox = CreateDefaultSubobject<UBoxComponent>(TEXT("RightHandBox"));
+	RightHandBox->SetupAttachment(GetMesh(), FName("RightHandSocket"));
+	LeftHandBox = CreateDefaultSubobject<UBoxComponent>(TEXT("LeftHandBox"));
+	LeftHandBox->SetupAttachment(GetMesh(), FName("LeftHandSocket"));
 }
 
 void AEnemy::PossessedBy(AController* NewController)
@@ -64,7 +70,7 @@ void AEnemy::BeginPlay()
 		HealthComponent->OnHealthDepleted.AddDynamic(this, &AEnemy::Die);
 	}
 
-	GetCharacterMovement()->MaxWalkSpeed = 400.f;
+	GetCharacterMovement()->MaxWalkSpeed = 400.f; 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationPitch = false;
@@ -72,6 +78,18 @@ void AEnemy::BeginPlay()
 
 	AttackRangeSphere->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::AttackRangeOverlap);
 	AttackRangeSphere->OnComponentEndOverlap.AddDynamic(this, &AEnemy::AttackRangeEndOverlap);
+
+	RightHandBox->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::OnRightHandOverlap);
+	LeftHandBox->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::OnLeftHandOverlap);
+
+	RightHandBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	RightHandBox->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+	RightHandBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	RightHandBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+	LeftHandBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	LeftHandBox->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+	LeftHandBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	LeftHandBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 }
 
 // Called every frame
@@ -214,3 +232,55 @@ FName AEnemy::GetAttackSectionName()
 	return SectionName;
 }
 
+void AEnemy::DealDamage(AActor* OtherActor)
+{
+	if (OtherActor == nullptr)
+	{
+		return;
+	}
+
+	auto MainCharacter = Cast<ACharacter>(OtherActor);
+	if (MainCharacter)
+	{
+		UGameplayStatics::ApplyDamage(
+			MainCharacter,
+			Damage,
+			EnemyAIController,
+			this,
+			UDamageType::StaticClass()
+		);
+	}
+}
+
+void AEnemy::OnRightHandOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Right Hand Overlap with: %s"), *OtherActor->GetName());
+	DealDamage(OtherActor);
+}
+
+void AEnemy::OnLeftHandOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	DealDamage(OtherActor);
+}
+
+void AEnemy::ActivateRightHandCollision()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Right Hand Collision ACTIVATED"));
+	RightHandBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+}
+
+void AEnemy::DeactivateRightHandCollision()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Right Hand Collision DEACTIVATED"));
+	RightHandBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void AEnemy::ActivateLeftHandCollision()
+{
+	LeftHandBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+}
+
+void AEnemy::DeactivateLeftHandCollision()
+{
+	LeftHandBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}

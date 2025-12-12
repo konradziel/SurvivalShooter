@@ -170,4 +170,6 @@ public:
 	bool IsUnderCrosshair(FHitResult& OutHitResult);
 
 	bool IsWeaponEquipped() const;
+
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 };

@@ -571,3 +571,15 @@ bool AMainCharacter::IsWeaponEquipped() const
 {
 	return EquippedItem && EquippedItem->IsA(AWeapon::StaticClass());
 }
+
+float AMainCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	if (HealthComponent && ActualDamage > 0.f)
+	{
+		HealthComponent->UpdateHealth(-ActualDamage);
+	}
+
+	return ActualDamage;
+}

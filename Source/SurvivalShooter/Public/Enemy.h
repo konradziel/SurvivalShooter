@@ -13,6 +13,7 @@ class UBehaviorTree;
 class AEnemyAIController;
 class USphereComponent;
 class UAnimMontage;
+class UBoxComponent;
 
 class UHealthComponent;
 
@@ -82,6 +83,46 @@ protected:
 
 	UFUNCTION(BlueprintPure)
 	FName GetAttackSectionName();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	UBoxComponent* RightHandBox;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	UBoxComponent* LeftHandBox;
+
+	UFUNCTION()
+	void OnRightHandOverlap(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult
+	);
+
+	UFUNCTION()
+	void OnLeftHandOverlap(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult
+	);
+
+	UFUNCTION(BlueprintCallable)
+	void ActivateRightHandCollision();
+	UFUNCTION(BlueprintCallable)
+	void DeactivateRightHandCollision();
+	UFUNCTION(BlueprintCallable)
+	void ActivateLeftHandCollision();
+	UFUNCTION(BlueprintCallable)
+	void DeactivateLeftHandCollision();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	float Damage;
+
+	void DealDamage(AActor* OtherActor);
 
 public:	
 	// Called every frame
