@@ -9,6 +9,8 @@
 #include "Engine/DirectionalLight.h"
 #include "DayNightCycle.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTimeChangedSignature, float, TimeOfDay);
+
 UCLASS()
 class SURVIVALSHOOTER_API ADayNightCycle : public AActor
 {
@@ -41,6 +43,9 @@ public:
 	float DayDurationMinutes = 30.0f;
 	
 	void SetTimeOfDay(float NewTimeOfDay);
+
+	UPROPERTY(BlueprintAssignable, Category = "Day/Night Cycle")
+	FOnTimeChangedSignature OnTimeChanged;
 
 private:
 	// Function to update the sun's position based on TimeOfDay

@@ -234,7 +234,7 @@ FName AEnemy::GetAttackSectionName()
 
 void AEnemy::DealDamage(AActor* OtherActor)
 {
-	if (OtherActor == nullptr)
+	if (OtherActor == nullptr || OtherActor == this)
 	{
 		return;
 	}

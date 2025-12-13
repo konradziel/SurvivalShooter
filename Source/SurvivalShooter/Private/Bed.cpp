@@ -34,14 +34,7 @@ ABed::ABed()
 void ABed::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	TArray<AActor*> FoundActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADayNightCycle::StaticClass(), FoundActors);
 
-	if (FoundActors.Num() > 0)
-	{
-		DayNightCycle = Cast<ADayNightCycle>(FoundActors[0]);
-	}
 }
 
 void ABed::SleepInBed(AMainCharacter* MainCharacter)

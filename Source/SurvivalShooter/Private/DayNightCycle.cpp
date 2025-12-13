@@ -4,6 +4,7 @@
 
 #include "DayNightCycle.h"
 #include "Components/LightComponent.h"
+#include "ClockWidget.h"
 
 // Sets default values
 ADayNightCycle::ADayNightCycle()
@@ -35,6 +36,7 @@ void ADayNightCycle::Tick(float DeltaTime)
         TimeOfDay = 0.0f;
     }
 
+	OnTimeChanged.Broadcast(TimeOfDay);
     // Update the sun's visual position
     UpdateSunPosition();
 }
@@ -42,6 +44,7 @@ void ADayNightCycle::Tick(float DeltaTime)
 void ADayNightCycle::SetTimeOfDay(float NewTimeOfDay)
 {
     TimeOfDay = FMath::Fmod(NewTimeOfDay, 24.0f);
+    OnTimeChanged.Broadcast(TimeOfDay);
     UpdateSunPosition();
 }
 
