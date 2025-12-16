@@ -34,6 +34,8 @@ void ADayNightCycle::Tick(float DeltaTime)
     if (TimeOfDay >= 24.0f)
     {
         TimeOfDay = 0.0f;
+		DaysPassed++;
+		OnDayChanged.Broadcast(DaysPassed);
     }
 
 	OnTimeChanged.Broadcast(TimeOfDay);

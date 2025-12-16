@@ -10,6 +10,7 @@
 #include "DayNightCycle.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTimeChangedSignature, float, TimeOfDay);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDayChangedSignature, int32, DayCount);
 
 UCLASS()
 class SURVIVALSHOOTER_API ADayNightCycle : public AActor
@@ -47,6 +48,12 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Day/Night Cycle")
 	FOnTimeChangedSignature OnTimeChanged;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Day/Night Cycle")
+	int32 DaysPassed = 1;
+
+	UPROPERTY(BlueprintAssignable, Category = "Day/Night Cycle")
+	FOnDayChangedSignature OnDayChanged;
+
 private:
 	// Function to update the sun's position based on TimeOfDay
 	void UpdateSunPosition();
@@ -56,4 +63,5 @@ private:
 
 public:
 	FORCEINLINE float GetTimeOfDay() const { return TimeOfDay; };
+	FORCEINLINE int32 GetDaysPassed() const { return DaysPassed; };
 };

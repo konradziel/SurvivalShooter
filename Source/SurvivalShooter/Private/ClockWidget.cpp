@@ -23,6 +23,9 @@ void UClockWidget::NativeConstruct()
 	{
 		DayNightCycle->OnTimeChanged.AddDynamic(this, &UClockWidget::OnTimeOfDayChanged);
 		OnTimeOfDayChanged(DayNightCycle->GetTimeOfDay());
+
+		DayNightCycle->OnDayChanged.AddDynamic(this, &UClockWidget::OnDayChanged);
+		OnDayChanged(DayNightCycle->GetDaysPassed());
 	}
 }
 
@@ -33,4 +36,13 @@ void UClockWidget::OnTimeOfDayChanged(float NewTimeOfDay)
 	int32 Minutes = TotalMinutes % 60;
 	FString TimeString = FString::Printf(TEXT("%02d:%02d"), Hours, Minutes);
 	TimeTextBlock->SetText(FText::FromString(TimeString));
+}
+
+void UClockWidget::OnDayChanged(int32 Day)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Day changed to: %d"), Day);
+	if (DayTextBlock)
+	{
+		DayTextBlock->SetText(FText::FromString(FString::Printf(TEXT("Day: %d"), Day)));
+	}
 }

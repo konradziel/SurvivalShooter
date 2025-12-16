@@ -19,9 +19,15 @@ class SURVIVALSHOOTER_API UClockWidget : public UUserWidget
 	UFUNCTION()
 	void OnTimeOfDayChanged(float NewTimeOfDay);
 
+	UFUNCTION()
+	void OnDayChanged(int32 Day);
+
 protected:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	TObjectPtr<UTextBlock> TimeTextBlock;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	TObjectPtr<UTextBlock> DayTextBlock;
 
 	ADayNightCycle* DayNightCycle;
 };
