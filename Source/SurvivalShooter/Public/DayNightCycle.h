@@ -40,7 +40,7 @@ public:
 
 	// The duration of a full day in minutes
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Day/Night Cycle")
-	float DayDurationMinutes = 30.0f;
+	float DayDurationMinutes = 15.0f;
 	
 	void SetTimeOfDay(float NewTimeOfDay);
 

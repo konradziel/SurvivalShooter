@@ -74,45 +74,37 @@ void ADayNightCycle::UpdateSunPosition()
         SunLight->SetActorRotation(SunRotation);
 
         float SunIntensity = 0.0f;
+        const float FadeRange = 20.0f;
+
         if (SunAngle >= 180.0f && SunAngle < 360.0f)
         {
-			float AngleFromHorizon = FMath::Min(SunAngle, 360.0f - SunAngle);
-            SunIntensity = 1.0f;
+            float DistFromSunrise = SunAngle - 180.0f;
+            float DistFromSunset = 360.0f - SunAngle;
+
+            float FadeAlpha = FMath::Min(DistFromSunrise, DistFromSunset) / FadeRange;
+            SunIntensity = FMath::Clamp(FadeAlpha, 0.0f, 1.0f);
         }
 
         if (ULightComponent* LightComp = SunLight->GetLightComponent())
         {
             LightComp->SetIntensity(SunIntensity * 10.0f);
         }
-    }
 
-    if (MoonLight)
-    {
-        float MoonAngle = ((TimeOfDay) / 24.0f) * 360.0f;
-        
-        if (MoonAngle <= 90)
+        if (MoonLight)
         {
-            MoonPitch = -((TimeOfDay / 2 + 9.0f) / 24.0f) * 360.0f;
-        }
-        else if (MoonAngle > 90 && MoonAngle < 180)
-        {
-            MoonPitch = MoonAngle;            
-        }
-        else if (MoonAngle >= 270)
-        {
-            MoonPitch = -(((24 - TimeOfDay) / 2 + 9.0f) / 24.0f) * 360.0f;            
-        }
+            FRotator MoonRotation = FRotator(-26.0f, 246.0f, 0.0f);
+            MoonLight->SetActorRotation(MoonRotation);
 
-        FRotator MoonRotation = FRotator(MoonPitch, MoonAngle - 90.0f, 118.0f);
-        MoonLight->SetActorRotation(MoonRotation);
+            float MaxMoonIntensity = 0.1f;
+            float MoonIntensity = (1.0f - (SunIntensity * 20.0f)) * MaxMoonIntensity;
 
-        float MoonIntensity = 0.1f;
 
-        if (ULightComponent* LightComp = MoonLight->GetLightComponent())
-        {
-            LightComp->SetIntensity(MoonIntensity * 10.0f);
-            LightComp->SetLightColor(FLinearColor(0.7f, 0.7f, 1.0f)); // Bluish tint
+            if (ULightComponent* LightComp = MoonLight->GetLightComponent())
+            {
+                LightComp->SetIntensity(MoonIntensity);
+                LightComp->SetLightColor(FLinearColor(0.7f, 0.7f, 1.0f)); // Bluish tint
+            }
         }
-    }
+    }    
 }
 
