@@ -239,6 +239,12 @@ void AEnemy::DealDamage(AActor* OtherActor)
 		return;
 	}
 
+	if (OtherActor->IsA(AEnemy::StaticClass()))
+	{
+		return;
+	}
+
+
 	auto MainCharacter = Cast<ACharacter>(OtherActor);
 	if (MainCharacter)
 	{
