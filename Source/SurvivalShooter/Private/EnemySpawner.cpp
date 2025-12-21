@@ -7,6 +7,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "DayNightCycle.h"
 #include "AIController.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "Enemy.h"
 
 // Sets default values
@@ -38,6 +39,11 @@ void AEnemySpawner::BeginPlay()
 
 		UpdateDifficulty(DayNightCycle->GetDaysPassed());
 	}
+
+	for (int32 i = 0; i < PermanentDormantCount; ++i)
+    {
+        SpawnEnemy(true, true, i);
+    }
 
 	GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &AEnemySpawner::ManageNightSpawning, 2.0f, true);
 }
@@ -74,19 +80,32 @@ void AEnemySpawner::OnDayChanged(int32 NewDayCount)
 	UpdateDifficulty(NewDayCount);
 }
 
-void AEnemySpawner::SpawnEnemy(bool bIsDormant)
+void AEnemySpawner::SpawnEnemy(bool bIsDormant, bool bIsPermanentDormant, int32 SpawnIndex)
 {
-	FVector SpawnLocation = GetSpawnLocation();
+	FVector SpawnLocation = GetSpawnLocation(bIsPermanentDormant, SpawnIndex);
+
+	FVector Center = GetActorLocation();
+    FVector DirectionToCenter = (Center - SpawnLocation).GetSafeNormal();
+    FRotator LookAtCenter = DirectionToCenter.Rotation();
+    FRotator SpawnRotation = FRotator(0.0f, LookAtCenter.Yaw, 0.0f);
 	
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
 	if (EnemyClass)
 	{
-		AEnemy* SpawnedEnemy = GetWorld()->SpawnActor<AEnemy>(EnemyClass, SpawnLocation, FRotator::ZeroRotator, SpawnParams);
+		AEnemy* SpawnedEnemy = GetWorld()->SpawnActor<AEnemy>(EnemyClass, SpawnLocation, SpawnRotation, SpawnParams);
 		if (SpawnedEnemy)
 		{
-			SpawnedEnemies.Add(SpawnedEnemy);
+			if (bIsPermanentDormant)
+            {
+                PermanentDormantEnemies.Add(SpawnedEnemy);
+            }
+            else
+            {
+                SpawnedEnemies.Add(SpawnedEnemy);
+            }
+
 			SetEnemyDormant(SpawnedEnemy, bIsDormant);
 		}
 	}
@@ -107,32 +126,56 @@ void AEnemySpawner::ManageNightSpawning()
 		}
 	}
 
+	for (int32 i = PermanentDormantEnemies.Num() - 1; i >= 0; i--)
+    {
+        if (!PermanentDormantEnemies[i] || PermanentDormantEnemies[i]->IsActorBeingDestroyed())
+        {
+            PermanentDormantEnemies.RemoveAt(i);
+        }
+    }
+
 	if (bIsNight)
 	{
 		if (SpawnedEnemies.Num() < CurrentMaxEnemies)
 		{
-			SpawnEnemy(false); // Spawn Active
+			SpawnEnemy(false, false, NextSpawnIndex); // Spawn Active
+			NextSpawnIndex = (NextSpawnIndex + 1) % 72;
 		}
 	}
 	else
 	{
 		if (SpawnedEnemies.Num() < CurrentMaxEnemies)
 		{
-			SpawnEnemy(true); // Spawn Dormant
+			SpawnEnemy(true, false, NextSpawnIndex); // Spawn Dormant
+			NextSpawnIndex = (NextSpawnIndex + 1) % 72;
 		}
 	}
 }
 
-FVector AEnemySpawner::GetSpawnLocation()
+FVector AEnemySpawner::GetSpawnLocation(bool bIsPermanentDormant, int32 SpawnIndex)
 {
-	ACharacter* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
-	FVector Center = Player ? Player->GetActorLocation() : GetActorLocation();
+	FVector Center = GetActorLocation();
 
 	// Random Point on Circle Border
-	float RandomAngle = FMath::RandRange(0.0f, 360.0f);
-	FVector Direction = FVector(FMath::Cos(FMath::DegreesToRadians(RandomAngle)), FMath::Sin(FMath::DegreesToRadians(RandomAngle)), 0.0f);
+	float Angle;
 
-	FVector SpawnPos = Center + (Direction * SpawnRadius);
+	if (bIsPermanentDormant)
+    {
+        float AngleStep = 360.0f / FMath::Max(1, PermanentDormantCount);
+        Angle = AngleStep * SpawnIndex;
+    }
+    else
+    {
+        const int32 TotalSlots = 72;
+        float AngleStep = 360.0f / TotalSlots;
+        Angle = AngleStep * SpawnIndex;
+		Angle += 2.5f;
+    }
+
+	FVector Direction = FVector(FMath::Cos(FMath::DegreesToRadians(Angle)), FMath::Sin(FMath::DegreesToRadians(Angle)), 0.0f);
+
+	float RandomDeviation = FMath::RandRange(-10.0f, 10.0f);
+	FVector SpawnPos = Center + (Direction * (SpawnRadius + RandomDeviation));
 
 	FHitResult HitResult;
 	FVector StartTrace = SpawnPos;
@@ -142,7 +185,6 @@ FVector AEnemySpawner::GetSpawnLocation()
 
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(this);
-	if (Player) QueryParams.AddIgnoredActor(Player);
 
 	bool bHit = GetWorld()->LineTraceSingleByChannel(
 		HitResult,
@@ -187,9 +229,14 @@ void AEnemySpawner::SetEnemyDormant(AEnemy* Enemy, bool bIsDormant)
 
 	if (bIsDormant)
 	{
-		if (AAIController* AI = Cast<AAIController>(Enemy->GetController()))
+		if (AAIController* AIController = Cast<AAIController>(Enemy->GetController()))
 		{
-			AI->StopMovement();
+			AIController->StopMovement();
+			
+			if (UBlackboardComponent* Blackboard = AIController->GetBlackboardComponent())
+    		{
+        		Blackboard->SetValueAsBool(TEXT("IsDormant"), bIsDormant);
+    		}
 		}
 
 		if (Enemy->GetCharacterMovement())
@@ -199,6 +246,14 @@ void AEnemySpawner::SetEnemyDormant(AEnemy* Enemy, bool bIsDormant)
 	}
 	else
 	{
+		if (AAIController* AIController = Cast<AAIController>(Enemy->GetController()))
+		{
+			if (UBlackboardComponent* Blackboard = AIController->GetBlackboardComponent())
+			{
+				Blackboard->SetValueAsBool(TEXT("IsDormant"), bIsDormant);
+			}
+		}
+
 		if (Enemy->GetCharacterMovement())
 		{
 			Enemy->GetCharacterMovement()->SetMovementMode(MOVE_Walking);

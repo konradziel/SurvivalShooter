@@ -34,7 +34,7 @@ protected:
 	float SpawnRadius = 2000.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning", meta = (AllowPrivateAccess = "true"))
-	float MinSpawnDistance = 1800.0f;
+	int32 PermanentDormantCount = 72;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning", meta = (AllowPrivateAccess = "true"))
 	int32 BaseMaxEnemies = 5;
@@ -50,7 +50,12 @@ private:
 	UPROPERTY()
 	TArray<AEnemy*> SpawnedEnemies;
 
+	UPROPERTY()
+	TArray<AEnemy*> PermanentDormantEnemies; 
+
 	int32 CurrentMaxEnemies;
+
+	int32 NextSpawnIndex = 0;
 
 	UFUNCTION()
 	void OnTimeChanged(float TimeOfDay);
@@ -58,10 +63,10 @@ private:
 	UFUNCTION()
 	void OnDayChanged(int32 NewDayCount);
 
-	void SpawnEnemy(bool bIsDormant);
+	void SpawnEnemy(bool bIsDormant, bool bIsPermanentDormant = false, int32 SpawnIndex = 0);
 	void ManageNightSpawning();
 
-	FVector GetSpawnLocation();
+	FVector GetSpawnLocation(bool bIsPermanentDormant = false, int32 SpawnIndex = 0);
 
 	void UpdateDifficulty(int32 DayCount);
 

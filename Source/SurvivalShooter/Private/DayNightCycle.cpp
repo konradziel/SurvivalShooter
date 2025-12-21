@@ -16,7 +16,8 @@ ADayNightCycle::ADayNightCycle()
 void ADayNightCycle::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	TimeOfDay = 12.0f;	
 }
 
 void ADayNightCycle::Tick(float DeltaTime)
@@ -89,7 +90,7 @@ void ADayNightCycle::UpdateSunPosition()
 
         if (ULightComponent* LightComp = SunLight->GetLightComponent())
         {
-            LightComp->SetIntensity(SunIntensity * 10.0f);
+            LightComp->SetIntensity(SunIntensity * 3.0f);
         }
 
         if (MoonLight)
