@@ -166,7 +166,12 @@ void AEnemy::AttackRangeOverlap(
 	const FHitResult& SweepResult
 )
 {
-	if (OtherActor == nullptr)
+	if (OtherActor == nullptr || OtherActor == this)
+	{
+		return;
+	}
+
+	if (OtherActor->IsA(AEnemy::StaticClass()))
 	{
 		return;
 	}
