@@ -73,4 +73,6 @@ private:
 	void WakeDormantEnemies();
 
 	void SetEnemyDormant(AEnemy* Enemy, bool bIsDormant);
+
+	void TriggerFlee();
 };

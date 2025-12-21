@@ -58,8 +58,13 @@ void AEnemySpawner::Tick(float DeltaTime)
 void AEnemySpawner::OnTimeChanged(float TimeOfDay)
 {
 	bool bIsNight = TimeOfDay >= 20.0f || TimeOfDay <= 6.0f;
+	bool bIsMorning = TimeOfDay >= 5.0f && TimeOfDay < 6.0f;
 
-	if (bIsNight)
+	if (bIsMorning)
+	{
+		TriggerFlee();
+	}
+	else if (bIsNight)
 	{
 		WakeDormantEnemies();
 	}
@@ -97,6 +102,8 @@ void AEnemySpawner::SpawnEnemy(bool bIsDormant, bool bIsPermanentDormant, int32 
 		AEnemy* SpawnedEnemy = GetWorld()->SpawnActor<AEnemy>(EnemyClass, SpawnLocation, SpawnRotation, SpawnParams);
 		if (SpawnedEnemy)
 		{
+			SpawnedEnemy->SetSpawnLocation(SpawnLocation);
+
 			if (bIsPermanentDormant)
             {
                 PermanentDormantEnemies.Add(SpawnedEnemy);
@@ -258,5 +265,39 @@ void AEnemySpawner::SetEnemyDormant(AEnemy* Enemy, bool bIsDormant)
 		{
 			Enemy->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 		}
+	}
+}
+
+void AEnemySpawner::TriggerFlee()
+{
+    for (AEnemy* Enemy : SpawnedEnemies)
+    {
+        if (Enemy && Enemy->GetController())
+        {
+            if (AAIController* AIController = Cast<AAIController>(Enemy->GetController()))
+            {
+                if (UBlackboardComponent* Blackboard = AIController->GetBlackboardComponent())
+                {
+                    Blackboard->SetValueAsBool(TEXT("IsFleeing"), true);
+                    Blackboard->SetValueAsVector(TEXT("FleeLocation"), Enemy->GetSpawnLocation());
+                }
+            }
+			
+			FVector SpawnerCenter = GetActorLocation();
+			FVector EnemyLocaction = Enemy->GetActorLocation();
+			FVector EnemySpawnLocation = Enemy->GetSpawnLocation();
+			
+			if ((EnemyLocaction - EnemySpawnLocation).Size() < 100.0f)
+			{
+				FVector ToCenter = SpawnerCenter - EnemyLocaction;
+            	ToCenter.Z = 0.0f;
+            	if (!ToCenter.IsNearlyZero())
+            	{
+					FRotator FaceCenter = FRotator(0.0f, ToCenter.Rotation().Yaw, 0.0f);
+					Enemy->SetActorRotation(FaceCenter);
+				}
+				SetEnemyDormant(Enemy, true);
+			}
+        }
 	}
 }

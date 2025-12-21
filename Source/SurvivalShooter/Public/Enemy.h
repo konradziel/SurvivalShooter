@@ -124,6 +124,9 @@ protected:
 
 	void DealDamage(AActor* OtherActor);
 
+	UPROPERTY()
+	FVector SpawnLocation;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -138,4 +141,11 @@ public:
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Health, meta = (AllowPrivateAccess = "true"))
 	UHealthComponent* HealthComponent;
+
+public:
+	UFUNCTION()
+	void SetSpawnLocation(const FVector& Location) { SpawnLocation = Location; }
+
+	UFUNCTION()
+	FVector GetSpawnLocation() const { return SpawnLocation; }
 };
