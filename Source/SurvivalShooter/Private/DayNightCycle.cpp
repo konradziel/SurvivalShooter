@@ -18,6 +18,16 @@ void ADayNightCycle::BeginPlay()
 	Super::BeginPlay();
 
 	TimeOfDay = 12.0f;	
+
+    UpdateSunPosition();
+
+    GetWorldTimerManager().SetTimer(
+        SunUpdateTimerHandle,
+        this,
+        &ADayNightCycle::UpdateSunPosition,
+        1.0f,
+        true
+    );
 }
 
 void ADayNightCycle::Tick(float DeltaTime)
@@ -41,7 +51,7 @@ void ADayNightCycle::Tick(float DeltaTime)
 
 	OnTimeChanged.Broadcast(TimeOfDay);
     // Update the sun's visual position
-    UpdateSunPosition();
+    
 }
 
 void ADayNightCycle::SetTimeOfDay(float NewTimeOfDay)
