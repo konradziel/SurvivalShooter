@@ -17,7 +17,7 @@ void ADayNightCycle::BeginPlay()
 {
 	Super::BeginPlay();
 
-	TimeOfDay = 12.0f;	
+	TimeOfDay = 5.0f;	
 
     UpdateSunPosition();
 

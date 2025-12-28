@@ -80,6 +80,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void DestroySelf();
 
+	UFUNCTION(BlueprintCallable)
 	virtual void SetItemProperties(EItemState State);
 
 	virtual bool CanBeUsed() const;

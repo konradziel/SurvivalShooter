@@ -53,4 +53,7 @@ public:
 	void UpdateSanityOnSleep(int SleepTime);
 
 	void DecreaseSanity();
+
+	UFUNCTION(BlueprintCallable)
+	void UpdateSanity(float DeltaSanity);
 };

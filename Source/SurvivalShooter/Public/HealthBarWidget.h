@@ -17,7 +17,7 @@ class SURVIVALSHOOTER_API UHealthBarWidget : public UUserWidget
 	GENERATED_BODY()
 	TWeakObjectPtr<UHealthComponent> TargetHealthComponent;
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void OnHealthChanged(float NewHealth, float MaxHealth);
 
 protected:

@@ -47,7 +47,7 @@ protected:
 private:
 	FTimerHandle SpawnTimerHandle;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning", meta = (AllowPrivateAccess = "true"))
 	TArray<AEnemy*> SpawnedEnemies;
 
 	UPROPERTY()

@@ -59,4 +59,15 @@ void USanityComponent::DecreaseSanity()
 	}
 }
 
+void USanityComponent::UpdateSanity(float DeltaSanity)
+{
+	Sanity += DeltaSanity;
+	Sanity = FMath::Clamp(Sanity, 0.0f, MaxSanity);
 
+	OnSanityChanged.Broadcast(Sanity, MaxSanity);
+
+	if (Sanity <= 0.0f)
+	{
+		OnSanityDepleted.Broadcast();
+	}
+}

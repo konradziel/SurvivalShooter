@@ -16,7 +16,7 @@ class SURVIVALSHOOTER_API USanityBarWidget : public UUserWidget
 	GENERATED_BODY()
 	TWeakObjectPtr<USanityComponent> TargetSanityComponent;
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void OnSanityChanged(float NewSanity, float MaxSanity);
 
 protected:

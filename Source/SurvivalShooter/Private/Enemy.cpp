@@ -132,6 +132,16 @@ void AEnemy::BulletHit_Implementation(const FHitResult& HitResult)
 
 float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	if (EnemyAIController)
+	{
+		UBlackboardComponent* Blackboard = EnemyAIController->GetBlackboardComponent();
+
+		if (Blackboard && Blackboard->GetValueAsBool(TEXT("IsDormant")))
+		{
+			return 0.f;
+		}
+	}
+
 	float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
 	if (HealthComponent && ActualDamage > 0.f)

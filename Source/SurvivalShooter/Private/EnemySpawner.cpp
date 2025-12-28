@@ -45,6 +45,7 @@ void AEnemySpawner::BeginPlay()
         SpawnEnemy(true, true, i);
     }
 
+	NextSpawnIndex = SpawnedEnemies.Num();
 	GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &AEnemySpawner::ManageNightSpawning, 2.0f, true);
 }
 
@@ -106,11 +107,13 @@ void AEnemySpawner::SpawnEnemy(bool bIsDormant, bool bIsPermanentDormant, int32 
 
 			if (bIsPermanentDormant)
             {
+				SpawnedEnemy->Tags.Add(FName("IsPermanentDormant"));
                 PermanentDormantEnemies.Add(SpawnedEnemy);
             }
             else
             {
                 SpawnedEnemies.Add(SpawnedEnemy);
+				SpawnedEnemy->Tags.Add(FName("SpawnedAtRuntime"));
             }
 
 			SetEnemyDormant(SpawnedEnemy, bIsDormant);
@@ -173,10 +176,10 @@ FVector AEnemySpawner::GetSpawnLocation(bool bIsPermanentDormant, int32 SpawnInd
     }
     else
     {
-        const int32 TotalSlots = 72;
+        const int32 TotalSlots = FMath::Max(1, PermanentDormantCount);
         float AngleStep = 360.0f / TotalSlots;
         Angle = AngleStep * SpawnIndex;
-		Angle += 2.5f;
+		Angle += AngleStep / 2;
     }
 
 	FVector Direction = FVector(FMath::Cos(FMath::DegreesToRadians(Angle)), FMath::Sin(FMath::DegreesToRadians(Angle)), 0.0f);
@@ -186,7 +189,7 @@ FVector AEnemySpawner::GetSpawnLocation(bool bIsPermanentDormant, int32 SpawnInd
 
 	FHitResult HitResult;
 	FVector StartTrace = SpawnPos;
-	StartTrace.Z += 1000.0f;
+	StartTrace.Z += 4000.0f;
 	FVector EndTrace = SpawnPos;
 	EndTrace.Z -= 2000.0f;
 
