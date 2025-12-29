@@ -2,6 +2,8 @@
 
 
 #include "SanityComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "DayNightCycle.h"
 
 // Sets default values for this component's properties
 USanityComponent::USanityComponent()
@@ -18,11 +20,14 @@ void USanityComponent::BeginPlay()
 	Super::BeginPlay();
 	Sanity = MaxSanity;
 
+	AActor* FoundActor = UGameplayStatics::GetActorOfClass(GetWorld(), ADayNightCycle::StaticClass());
+	DayNightCycle = Cast<ADayNightCycle>(FoundActor);
+
 	GetWorld()->GetTimerManager().SetTimer(
 		SanityTimerHandle,
 		this,
 		&USanityComponent::DecreaseSanity,
-		60.0f,
+		1.0f,
 		true
 	);
 }
@@ -49,7 +54,13 @@ void USanityComponent::UpdateSanityOnSleep(int SleepTime)
 
 void USanityComponent::DecreaseSanity()
 {
-	Sanity = FMath::Clamp(Sanity - SanityDrainRate, 0.0f, MaxSanity);
+	float DrainMultiplier = 1.0f;
+	if (DayNightCycle)
+	{
+		DrainMultiplier = 24.0f / DayNightCycle->DayDurationMinutes;
+	}
+
+	Sanity = FMath::Clamp(Sanity - ( SanityDrainRate * DrainMultiplier), 0.0f, MaxSanity);
 
 	OnSanityChanged.Broadcast(Sanity, MaxSanity);
 

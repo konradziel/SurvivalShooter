@@ -15,9 +15,7 @@ ADayNightCycle::ADayNightCycle()
 
 void ADayNightCycle::BeginPlay()
 {
-	Super::BeginPlay();
-
-	TimeOfDay = 5.0f;	
+    Super::BeginPlay();
 
     UpdateSunPosition();
 
@@ -59,6 +57,12 @@ void ADayNightCycle::SetTimeOfDay(float NewTimeOfDay)
     TimeOfDay = FMath::Fmod(NewTimeOfDay, 24.0f);
     OnTimeChanged.Broadcast(TimeOfDay);
     UpdateSunPosition();
+}
+
+void ADayNightCycle::SetDaysPassed(int32 NewDaysPassed)
+{
+    DaysPassed = NewDaysPassed;
+	OnDayChanged.Broadcast(DaysPassed);
 }
 
 void ADayNightCycle::UpdateSunPosition()

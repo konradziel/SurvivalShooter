@@ -25,6 +25,9 @@ class SURVIVALSHOOTER_API USanityComponent : public UActorComponent
 	UPROPERTY()
 	float SanityDrainRate = 0.1f;
 
+	UPROPERTY()
+    class ADayNightCycle* DayNightCycle;
+
 public:	
 	// Sets default values for this component's properties
 	USanityComponent();

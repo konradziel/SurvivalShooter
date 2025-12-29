@@ -43,7 +43,11 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Day/Night Cycle")
 	float DayDurationMinutes = 15.0f;
 	
+	UFUNCTION(BlueprintCallable)
 	void SetTimeOfDay(float NewTimeOfDay);
+
+	UFUNCTION(BlueprintCallable)
+	void SetDaysPassed(int32 NewDaysPassed);
 
 	UPROPERTY(BlueprintAssignable, Category = "Day/Night Cycle")
 	FOnTimeChangedSignature OnTimeChanged;
