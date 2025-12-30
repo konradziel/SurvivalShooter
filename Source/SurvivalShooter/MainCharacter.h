@@ -116,6 +116,12 @@ protected:
 
 	bool bIsAiming = false;
 
+	bool bShouldTraceForInteractables = false;
+
+	TArray<AActor*> OverlappedInteractables;
+
+	void TraceForInteractables();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -172,4 +178,9 @@ public:
 	bool IsWeaponEquipped() const;
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+	
+	void OverlapInteractables();
+
+	void AddOverlappedInteractable(AActor* Actor);
+	void RemoveOverlappedInteractable(AActor* Actor);
 };

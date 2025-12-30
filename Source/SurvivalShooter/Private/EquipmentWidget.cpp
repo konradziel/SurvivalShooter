@@ -6,6 +6,7 @@
 #include "Components/Image.h"
 #include "Components/Border.h"
 #include "Blueprint/WidgetTree.h"
+#include "Weapon.h"
 
 void UEquipmentWidget::OnEquipmentChanged(int32 SlotIndex)
 {
@@ -58,6 +59,10 @@ void UEquipmentWidget::UpdateSlotWidget(int32 SlotIndex, const FEquipmentSlot& S
         {
             SlotWidget.QuantityText->SetText(FText::FromString(TEXT("")));
         }
+        if (SlotWidget.AmmunitionText)
+        {
+            SlotWidget.AmmunitionText->SetText(FText::FromString(TEXT("")));
+        }
         if (SlotWidget.ItemIcon)
         {
             SlotWidget.ItemIcon->SetVisibility(ESlateVisibility::Hidden);
@@ -83,6 +88,16 @@ void UEquipmentWidget::UpdateSlotWidget(int32 SlotIndex, const FEquipmentSlot& S
             {
                 SlotWidget.QuantityText->SetText(FText::FromString(TEXT("")));
             }
+        }
+
+        AWeapon* Weapon = Cast<AWeapon>(SlotData.Item);
+        if (Weapon && SlotWidget.AmmunitionText)
+        {
+            SlotWidget.AmmunitionText->SetText(FText::FromString(FString::Printf(TEXT("%d"), Weapon->GetCurrentAmmo())));
+        }
+        else if (SlotWidget.AmmunitionText)
+        {
+            SlotWidget.AmmunitionText->SetText(FText::FromString(TEXT("")));
         }
     }
 
@@ -133,11 +148,12 @@ void UEquipmentWidget::SetTargetEquipmentComponent(UEquipmentComponent* NewEquip
 	}
 }
 
-void UEquipmentWidget::AddSlotReference(UImage* Icon, UTextBlock* Quantity, UBorder* Border)
+void UEquipmentWidget::AddSlotReference(UImage* Icon, UTextBlock* Quantity, UBorder* Border, UTextBlock* Ammunition)
 {
     FSlotWidget NewSlot;
     NewSlot.ItemIcon = Icon;
     NewSlot.QuantityText = Quantity;
+    NewSlot.AmmunitionText = Ammunition;
     NewSlot.Border = Border;
     SlotWidgets.Add(NewSlot);
 }
@@ -167,6 +183,7 @@ void UEquipmentWidget::AddSlotWidget(UUserWidget* SlotWidget)
 
     UImage* ItemIcon = nullptr;
     UTextBlock* QuantityText = nullptr;
+    UTextBlock* AmmunitionText = nullptr;
     UBorder* Border = nullptr;
 
     if (SlotWidget->WidgetTree)
@@ -174,12 +191,13 @@ void UEquipmentWidget::AddSlotWidget(UUserWidget* SlotWidget)
         // Find widgets by name
         ItemIcon = Cast<UImage>(SlotWidget->WidgetTree->FindWidget(TEXT("ItemIcon")));
         QuantityText = Cast<UTextBlock>(SlotWidget->WidgetTree->FindWidget(TEXT("QuantityText")));
+        AmmunitionText = Cast<UTextBlock>(SlotWidget->WidgetTree->FindWidget(TEXT("AmmunitionText")));
         Border = Cast<UBorder>(SlotWidget->WidgetTree->FindWidget(TEXT("Border")));
     }
 
     // Add the slot if both widgets were found
     if (ItemIcon && QuantityText)
     {
-        AddSlotReference(ItemIcon, QuantityText, Border);
+        AddSlotReference(ItemIcon, QuantityText, Border, AmmunitionText);
     }
 }

@@ -229,6 +229,14 @@ void AEnemySpawner::WakeDormantEnemies()
 		if (Enemy)
 		{
 			SetEnemyDormant(Enemy, false);
+
+			if (AAIController* AIController = Cast<AAIController>(Enemy->GetController()))
+			{
+				if (UBlackboardComponent* Blackboard = AIController->GetBlackboardComponent())
+				{
+					Blackboard->SetValueAsBool(TEXT("IsFleeing"), false);
+				}
+			}
 		}
 	}
 }
@@ -266,6 +274,8 @@ void AEnemySpawner::SetEnemyDormant(AEnemy* Enemy, bool bIsDormant)
 
 		if (Enemy->GetCharacterMovement())
 		{
+			Enemy->GetCharacterMovement()->SetComponentTickEnabled(true);
+			Enemy->GetCharacterMovement()->Activate();
 			Enemy->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 		}
 	}
@@ -299,6 +309,15 @@ void AEnemySpawner::TriggerFlee()
 					FRotator FaceCenter = FRotator(0.0f, ToCenter.Rotation().Yaw, 0.0f);
 					Enemy->SetActorRotation(FaceCenter);
 				}
+
+				if (AAIController* AIController = Cast<AAIController>(Enemy->GetController()))
+				{
+					if (UBlackboardComponent* Blackboard = AIController->GetBlackboardComponent())
+					{
+						Blackboard->SetValueAsBool(TEXT("IsFleeing"), false);
+					}
+				}
+
 				SetEnemyDormant(Enemy, true);
 			}
         }

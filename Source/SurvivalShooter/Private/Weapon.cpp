@@ -37,6 +37,12 @@ void AWeapon::Shoot(AMainCharacter* Character)
 
 	CurrentAmmoInMagazine--;
 
+	UEquipmentComponent* EquipmentComponent = Character->FindComponentByClass<UEquipmentComponent>();
+	if (EquipmentComponent)
+	{
+		EquipmentComponent->OnEquipmentChanged.Broadcast(EquipmentComponent->GetActiveSlotIndex());
+	}
+
 	FHitResult CrosshairHit;
 	FVector Target;
 	Character->IsUnderCrosshair(CrosshairHit);
@@ -170,8 +176,8 @@ bool AWeapon::Reload(AMainCharacter* Character)
 		return false;
 	}
 
-	UEquipmentComponent* EquimpentComponent = Character->FindComponentByClass<UEquipmentComponent>();
-	if (!EquimpentComponent)
+	UEquipmentComponent* EquipmentComponent = Character->FindComponentByClass<UEquipmentComponent>();
+	if (!EquipmentComponent)
 	{
 		return false;
 	}
@@ -196,7 +202,7 @@ bool AWeapon::Reload(AMainCharacter* Character)
 
 	int32 AmmoToLoad = MagazineInInventory->GetAmmoCount();
 
-	if (EquimpentComponent->RemoveItem(MagSlotIndex, 1))
+	if (EquipmentComponent->RemoveItem(MagSlotIndex, 1))
 	{
 		CurrentAmmoInMagazine = AmmoToLoad;
 		UE_LOG(LogTemp, Warning, TEXT("Reloaded: %d/%d"), CurrentAmmoInMagazine, MagazineCapacity);
@@ -205,6 +211,8 @@ bool AWeapon::Reload(AMainCharacter* Character)
 		{
 			UGameplayStatics::PlaySound2D(this, ReloadSound);
 		}
+
+		EquipmentComponent->OnEquipmentChanged.Broadcast(EquipmentComponent->GetActiveSlotIndex());
 
 		MagazineInInventory->RecycleSelf();
 		return true;

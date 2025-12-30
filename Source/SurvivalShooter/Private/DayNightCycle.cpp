@@ -17,6 +17,8 @@ void ADayNightCycle::BeginPlay()
 {
     Super::BeginPlay();
 
+    DaysToWin = FMath::RandRange(2, 4);
+
     UpdateSunPosition();
 
     GetWorldTimerManager().SetTimer(
@@ -38,6 +40,12 @@ void ADayNightCycle::Tick(float DeltaTime)
     // 24 hours in a day, DayDurationMinutes converted to seconds
     float TimeAdvance = (24.0f / (DayDurationMinutes * 60.0f)) * DeltaTime;
     TimeOfDay += TimeAdvance;
+
+	if (!bHasWon && DaysPassed >= DaysToWin && TimeOfDay >= WinTime)
+    {
+        bHasWon = true;
+        OnPlayerWon.Broadcast(DaysPassed);
+    }
 
     // Loop back to 0 after 24 hours
     if (TimeOfDay >= 24.0f)
@@ -63,6 +71,11 @@ void ADayNightCycle::SetDaysPassed(int32 NewDaysPassed)
 {
     DaysPassed = NewDaysPassed;
 	OnDayChanged.Broadcast(DaysPassed);
+}
+
+void ADayNightCycle::SetDaysToWin(int32 NewDaysToWin)
+{
+    DaysToWin = NewDaysToWin;
 }
 
 void ADayNightCycle::UpdateSunPosition()

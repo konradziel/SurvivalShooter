@@ -8,6 +8,8 @@
 class UWidgetComponent;
 class UBoxComponent;
 class UMeshComponent;
+class USphereComponent;
+class UMaterialInterface;
 
 class AMainCharacter;
 
@@ -43,6 +45,27 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UFUNCTION()
+	void OnSphereOverlap(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult
+	);
+
+	UFUNCTION()
+	void OnSphereEndOverlap(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex
+	);
+
+	UFUNCTION()
+	void RestoreBeamRotation();
 
 public:
 	// Properties
@@ -109,6 +132,15 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	UWidgetComponent* PickUpWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	USphereComponent* SphereForWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	UMaterialInterface* OverlayMaterial;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	UMeshComponent* BeamMesh;
 
 public:
 	FORCEINLINE UWidgetComponent* GetPickUpWidget() const { return PickUpWidget; };

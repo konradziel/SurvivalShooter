@@ -21,6 +21,9 @@ struct FSlotWidget
     TObjectPtr<UTextBlock> QuantityText;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TObjectPtr<UTextBlock> AmmunitionText;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
     TObjectPtr<UImage> ItemIcon;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -29,6 +32,7 @@ struct FSlotWidget
     FSlotWidget()
     {
         QuantityText = nullptr;
+        AmmunitionText = nullptr;
         ItemIcon = nullptr;
         Border = nullptr;
     }
@@ -60,7 +64,7 @@ public:
     void SetTargetEquipmentComponent(UEquipmentComponent* NewEquipmentComponent);
 
     UFUNCTION(BlueprintCallable, Category = "Equipment")
-    void AddSlotReference(UImage* Icon, UTextBlock* Quantity, UBorder* Border);
+    void AddSlotReference(UImage* Icon, UTextBlock* Quantity, UBorder* Border, UTextBlock* Ammunition = nullptr);
 
     // Call this after all slot references are added and component is set
     UFUNCTION(BlueprintCallable, Category = "Equipment")

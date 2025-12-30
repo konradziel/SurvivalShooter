@@ -1,6 +1,7 @@
 #include "Item.h"
 #include "Components/BoxComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Components/SphereComponent.h"
 #include "../MainCharacter.h"
 #include "EquipmentComponent.h"
 
@@ -25,6 +26,12 @@ AItem::AItem()
 	PickUpWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("PickUpWidget"));
 	PickUpWidget->SetupAttachment(ItemMesh);
 	PickUpWidget->SetVisibility(false);
+
+	SphereForWidget = CreateDefaultSubobject<USphereComponent>(TEXT("SphereForWidget"));
+	SphereForWidget->SetupAttachment(ItemMesh);
+
+	BeamMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BeamMesh"));
+	BeamMesh->SetupAttachment(ItemMesh);
 }
 
 // Called when the game starts or when spawned
@@ -35,6 +42,46 @@ void AItem::BeginPlay()
 	if (GetWorld() && ItemMesh && CollisionBox)
 	{
 		SetItemProperties(ItemState);
+	}
+
+	SphereForWidget->OnComponentBeginOverlap.AddDynamic(this, &AItem::OnSphereOverlap);
+	SphereForWidget->OnComponentEndOverlap.AddDynamic(this, &AItem::OnSphereEndOverlap);
+
+	RestoreBeamRotation();
+}
+
+void AItem::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor)
+	{
+		AMainCharacter* MainCharacter = Cast<AMainCharacter>(OtherActor);
+		if (MainCharacter)
+		{
+			MainCharacter->AddOverlappedInteractable(this);
+			MainCharacter->OverlapInteractables();
+		}
+	}
+}
+
+void AItem::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (OtherActor)
+	{
+		AMainCharacter* MainCharacter = Cast<AMainCharacter>(OtherActor);
+		if (MainCharacter)
+		{
+			MainCharacter->RemoveOverlappedInteractable(this);
+			MainCharacter->OverlapInteractables();
+		}
+	}
+}
+
+void AItem::RestoreBeamRotation()
+{
+	if (BeamMesh)
+	{
+		BeamMesh->SetUsingAbsoluteRotation(true);
+		BeamMesh->SetWorldRotation(FRotator::ZeroRotator);
 	}
 }
 
@@ -153,11 +200,15 @@ void AItem::SetItemProperties(EItemState State)
 		ItemMesh->SetLinearDamping(0.5f);
 		ItemMesh->SetAngularDamping(0.5f);
 
+		ItemMesh->SetOverlayMaterial(OverlayMaterial);
+
 		CollisionBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 		CollisionBox->SetCollisionResponseToChannel(
 			ECollisionChannel::ECC_Visibility,
 			ECollisionResponse::ECR_Block);
 		CollisionBox->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+
+		BeamMesh->SetVisibility(true);
 
 		break;
 
@@ -169,6 +220,10 @@ void AItem::SetItemProperties(EItemState State)
 		ItemMesh->SetSimulatePhysics(false);
 		ItemMesh->SetEnableGravity(false);
 		ItemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		ItemMesh->SetOverlayMaterial(nullptr);
+
+		BeamMesh->SetVisibility(false);
 
 		break;
 
@@ -183,8 +238,13 @@ void AItem::SetItemProperties(EItemState State)
 		ItemMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 		ItemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
+		ItemMesh->SetOverlayMaterial(nullptr);
+
 		CollisionBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 		CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		BeamMesh->SetVisibility(false);
+		BeamMesh->SetUsingAbsoluteRotation(true);
 
 		break;
 	}

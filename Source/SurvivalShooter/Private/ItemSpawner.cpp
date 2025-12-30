@@ -39,7 +39,7 @@ void AItemSpawner::CalculateTargets()
 		int32 MaxEnemies = EnemySpawner->GetCurrentMaxEnemies();
 
 		FoodTargetCount = FMath::Max(1, MaxEnemies / 2);
-		MagazineTargetCount = FMath::Max(1, MaxEnemies / 9);
+		MagazineTargetCount = FMath::Max(1, MaxEnemies / 4);
 	}
 }
 

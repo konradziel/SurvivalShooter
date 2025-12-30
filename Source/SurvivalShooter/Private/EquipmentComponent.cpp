@@ -109,7 +109,7 @@ bool UEquipmentComponent::RemoveItem(int32 SlotIndex, int32 Quantity)
 
 bool UEquipmentComponent::SwapItems(int32 SlotIndex1, int32 SlotIndex2)
 {
-	if (SlotIndex1 != SlotIndex2 ||
+	if (SlotIndex1 == SlotIndex2 ||
 		SlotIndex1 < 0 || SlotIndex1 >= EquipmentSlots.Num() ||
 		SlotIndex2 < 0 || SlotIndex2 >= EquipmentSlots.Num()
 		)

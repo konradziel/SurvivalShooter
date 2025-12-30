@@ -28,6 +28,9 @@ ABed::ABed()
 	SleepWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("PickUpWidget"));
 	SleepWidget->SetupAttachment(BedMesh);
 	SleepWidget->SetVisibility(false);
+
+	SphereForWidget = CreateDefaultSubobject<USphereComponent>(TEXT("SphereForWidget"));
+	SphereForWidget->SetupAttachment(BedMesh);
 }
 
 // Called when the game starts or when spawned
@@ -35,6 +38,34 @@ void ABed::BeginPlay()
 {
 	Super::BeginPlay();
 
+	SphereForWidget->OnComponentBeginOverlap.AddDynamic(this, &ABed::OnSphereOverlap);
+	SphereForWidget->OnComponentEndOverlap.AddDynamic(this, &ABed::OnSphereEndOverlap);
+}
+
+void ABed::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor)
+	{
+		AMainCharacter* MainCharacter = Cast<AMainCharacter>(OtherActor);
+		if (MainCharacter)
+		{
+			MainCharacter->AddOverlappedInteractable(this);
+			MainCharacter->OverlapInteractables();
+		}
+	}
+}
+
+void ABed::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (OtherActor)
+	{
+		AMainCharacter* MainCharacter = Cast<AMainCharacter>(OtherActor);
+		if (MainCharacter)
+		{
+			MainCharacter->RemoveOverlappedInteractable(this);
+			MainCharacter->OverlapInteractables();
+		}
+	}
 }
 
 void ABed::SleepInBed(AMainCharacter* MainCharacter)
@@ -73,6 +104,10 @@ void ABed::SetWidgetVisibility(bool bIsVisible)
 	if (SleepWidget && CurrentTime >= 6.0f && CurrentTime < 20.0f)
 	{
 		SleepWidget->SetVisibility(bIsVisible);
+	}
+	else
+	{
+		SleepWidget->SetVisibility(false);
 	}
 }
 

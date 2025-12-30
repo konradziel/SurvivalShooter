@@ -31,6 +31,8 @@ AMainCharacter::AMainCharacter()
 	GetCharacterMovement()->AirControl = 0.5f;
 	GetCharacterMovement()->GravityScale = 1.5f;
 	GetCharacterMovement()->MaxWalkSpeed = DefaultWalkSpeed;
+	GetCharacterMovement()->MaxStepHeight = 60.0f;
+	GetCharacterMovement()->SetWalkableFloorAngle(50.0f);
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
@@ -95,41 +97,58 @@ void AMainCharacter::BeginPlay()
 }
 
 
+void AMainCharacter::TraceForInteractables()
+{
+	if (bShouldTraceForInteractables)
+	{
+		FHitResult ItemUnderCrosshair;
+		IsUnderCrosshair(ItemUnderCrosshair);
+		if (ItemUnderCrosshair.bBlockingHit)
+		{
+			HitActor = ItemUnderCrosshair.GetActor();
+
+			bool bImplementsInteractWidget = HitActor && HitActor->Implements<UInteractWidgetInterface>();
+			bool bIsOverlappedItem = OverlappedInteractables.Contains(Cast<AActor>(HitActor));
+
+			if ((HitActor != LastHitActor) && LastHitActor)
+			{
+				if (IInteractWidgetInterface* Interface = Cast<IInteractWidgetInterface>(LastHitActor))
+				{
+					Interface->SetWidgetVisibility(false);
+				}
+			}
+
+			if (bImplementsInteractWidget && bIsOverlappedItem)
+			{
+				if (IInteractWidgetInterface* Interface = Cast<IInteractWidgetInterface>(HitActor))
+				{
+					Interface->SetWidgetVisibility(true);
+				}
+				LastHitActor = HitActor;
+			}
+		}
+		else
+		{
+			HitActor = nullptr;
+			HitItem = nullptr;
+		}
+	}
+	else if (LastHitActor)
+	{
+		if (IInteractWidgetInterface* Interface = Cast<IInteractWidgetInterface>(LastHitActor))
+		{
+			Interface->SetWidgetVisibility(false);
+		}
+		LastHitActor = nullptr;
+	}
+}
+
 // Called every frame
 void AMainCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	FHitResult ItemUnderCrosshair;
-	IsUnderCrosshair(ItemUnderCrosshair);
-	if (ItemUnderCrosshair.bBlockingHit)
-	{
-		HitActor = ItemUnderCrosshair.GetActor();
-
-		bool bImplementsInteractWidget = HitActor && HitActor->Implements<UInteractWidgetInterface>();
-
-		if ((HitActor != LastHitActor) && LastHitActor)
-		{
-			if (IInteractWidgetInterface* Interface = Cast<IInteractWidgetInterface>(LastHitActor))
-			{
-				Interface->SetWidgetVisibility(false);
-			}
-		}
-
-		if (bImplementsInteractWidget)
-		{
-			if (IInteractWidgetInterface* Interface = Cast<IInteractWidgetInterface>(HitActor))
-			{
-				Interface->SetWidgetVisibility(true);
-			}
-			LastHitActor = HitActor;
-		}
-	}
-	else
-	{
-		HitActor = nullptr;
-		HitItem = nullptr;
-	}
+	TraceForInteractables();
 
 	if (bIsAiming)
 	{
@@ -363,6 +382,7 @@ void AMainCharacter::DropActiveSlotItem()
 	}
 
 	AItem* ItemToDrop = Slot.Item;
+	ItemToDrop->Quantity = Slot.Quantity;
 
 	// Unequip
 	if (EquippedItem == ItemToDrop)
@@ -582,4 +602,32 @@ float AMainCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 	}
 
 	return ActualDamage;
+}
+
+void AMainCharacter::OverlapInteractables()
+{
+	if (OverlappedInteractables.Num() <= 0)
+	{
+		bShouldTraceForInteractables = false;
+	}
+	else
+	{
+		bShouldTraceForInteractables = true;
+	}
+}
+
+void AMainCharacter::AddOverlappedInteractable(AActor* Actor)
+{
+	if (Actor && !OverlappedInteractables.Contains(Actor))
+	{
+		OverlappedInteractables.Add(Actor);
+	}
+}
+
+void AMainCharacter::RemoveOverlappedInteractable(AActor* Actor)
+{
+	if (Actor)
+	{
+		OverlappedInteractables.Remove(Actor);
+	}
 }

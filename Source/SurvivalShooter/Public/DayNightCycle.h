@@ -58,6 +58,19 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Day/Night Cycle")
 	FOnDayChangedSignature OnDayChanged;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Day/Night Cycle")
+	int32 DaysToWin;
+
+	UPROPERTY(BlueprintAssignable, Category = "Day/Night Cycle")
+	FOnDayChangedSignature OnPlayerWon;
+
+	bool bHasWon = false;
+
+	float WinTime = 5.5f;
+
+	UFUNCTION(BlueprintCallable)
+	void SetDaysToWin(int32 NewDaysToWin);
+
 private:
 	// Function to update the sun's position based on TimeOfDay
 	void UpdateSunPosition();

@@ -62,4 +62,7 @@ public:
 	FORCEINLINE int32 GetCurrentAmmo() const { return CurrentAmmoInMagazine; }
 	FORCEINLINE bool HasAmmo() const { return CurrentAmmoInMagazine > 0; }
 	FORCEINLINE float GetFireRate() const { return FireRate; }
+	
+	UFUNCTION(BlueprintCallable)
+	void SetCurrentAmmo(int32 NewAmmo) { CurrentAmmoInMagazine = NewAmmo; }
 };

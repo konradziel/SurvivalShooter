@@ -40,7 +40,7 @@ protected:
 	int32 BaseMaxEnemies = 5;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning", meta = (AllowPrivateAccess = "true"))
-	float DifficultyScaling = 2.0f;
+	float DifficultyScaling = 10.0f;
 
 	ADayNightCycle* DayNightCycle;
 
