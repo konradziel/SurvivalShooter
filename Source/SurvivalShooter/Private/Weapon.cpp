@@ -206,6 +206,7 @@ bool AWeapon::Reload(AMainCharacter* Character)
 			UGameplayStatics::PlaySound2D(this, ReloadSound);
 		}
 
+		MagazineInInventory->RecycleSelf();
 		return true;
 	}
 

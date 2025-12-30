@@ -36,5 +36,7 @@ bool AFood::UseItem(AMainCharacter* MainCharacter)
 
 	HealthComp->UpdateHealth(HealthRestored);
 
+	RecycleSelf();
+
 	return true;
 }

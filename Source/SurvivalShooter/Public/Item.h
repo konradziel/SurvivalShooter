@@ -29,6 +29,8 @@ enum class EItemType : uint8
 	EIT_None UMETA(DisplayName = "None")
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnItemRecycleSignature, AItem*, ItemInstance);
+
 UCLASS()
 class SURVIVALSHOOTER_API AItem : public AActor, public IInteractWidgetInterface
 {
@@ -91,6 +93,12 @@ public:
 
 	virtual void Interact(AMainCharacter* MainCharacter) override;
 
+	UPROPERTY(BlueprintAssignable)
+	FOnItemRecycleSignature OnItemRecycle;
+
+	void RecycleSelf();
+
+	virtual void ResetItem();
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))

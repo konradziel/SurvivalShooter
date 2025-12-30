@@ -212,3 +212,17 @@ void AItem::Interact(AMainCharacter* MainCharacter)
 {
 	PickUpItem();
 }
+
+void AItem::RecycleSelf()
+{
+	OnItemRecycle.Broadcast(this);
+
+	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	SetActorHiddenInGame(true);
+	SetActorEnableCollision(false);
+}
+
+void AItem::ResetItem()
+{
+	SetItemProperties(EItemState::EIS_OnGround);
+}

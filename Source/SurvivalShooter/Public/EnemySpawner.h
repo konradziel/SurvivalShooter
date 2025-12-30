@@ -75,4 +75,8 @@ private:
 	void SetEnemyDormant(AEnemy* Enemy, bool bIsDormant);
 
 	void TriggerFlee();
+
+public:
+	UFUNCTION(BlueprintCallable, Category = "Spawning")
+	int32 GetCurrentMaxEnemies() const { return CurrentMaxEnemies; }
 };
