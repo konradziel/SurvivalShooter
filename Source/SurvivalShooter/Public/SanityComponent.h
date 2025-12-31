@@ -23,7 +23,13 @@ class SURVIVALSHOOTER_API USanityComponent : public UActorComponent
 
 	// Drain rate in one second
 	UPROPERTY()
-	float SanityDrainRate = 0.1f;
+	float SanityDrainRate;
+
+	UPROPERTY()
+	float SanityNormalDrainRate;
+
+	UPROPERTY()
+	float SanityBorderDrainRate;
 
 	UPROPERTY()
     class ADayNightCycle* DayNightCycle;
@@ -59,4 +65,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void UpdateSanity(float DeltaSanity);
+
+	void DrainSanityAtBorder(bool bIsInBorder);
 };

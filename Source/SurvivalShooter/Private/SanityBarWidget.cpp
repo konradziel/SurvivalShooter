@@ -10,7 +10,7 @@ void USanityBarWidget::OnSanityChanged(float NewSanity, float MaxSanity)
 {
 	float Percentage = NewSanity / MaxSanity;
 	SanityProgressBar->SetPercent(Percentage);
-	SanityTextBlock->SetText(FText::FromString(FString::Printf(TEXT("%d%%"), static_cast<int32>(Percentage * 100))));
+	SanityTextBlock->SetText(FText::FromString(FString::Printf(TEXT("%.1f%%"), Percentage * 100)));
 }
 
 void USanityBarWidget::SetTargetSanityComponent(USanityComponent* NewSanityComponent)

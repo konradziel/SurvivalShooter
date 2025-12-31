@@ -117,8 +117,10 @@ FVector AItemSpawner::GetRandomSpawnLocation()
 	FVector SpawnPos = Center + Offset;
 
 	FHitResult HitResult;
-	FVector StartTrace = SpawnPos + FVector(0.0f, 0.0f, 4000.0f);
-	FVector EndTrace = SpawnPos - FVector(0.0f, 0.0f, 2000.0f);
+	FVector StartTrace = SpawnPos;
+	StartTrace.Z += 5000.0f;
+	FVector EndTrace = SpawnPos;
+	EndTrace.Z -= 5000.0f;
 
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(this);

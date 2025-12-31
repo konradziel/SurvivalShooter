@@ -18,10 +18,16 @@ USanityComponent::USanityComponent()
 void USanityComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	Sanity = MaxSanity;
+	Sanity = MaxSanity; 
 
 	AActor* FoundActor = UGameplayStatics::GetActorOfClass(GetWorld(), ADayNightCycle::StaticClass());
 	DayNightCycle = Cast<ADayNightCycle>(FoundActor);
+
+	// 34.5 it's time from 10 PM to 6:50 AM in the second next day
+	SanityNormalDrainRate = MaxSanity / (34.5f * 60.0f * DayNightCycle->DayDurationMinutes / 24.0f);
+	SanityBorderDrainRate = SanityNormalDrainRate * 100.0f;
+
+	SanityDrainRate = SanityNormalDrainRate;
 
 	GetWorld()->GetTimerManager().SetTimer(
 		SanityTimerHandle,
@@ -54,13 +60,7 @@ void USanityComponent::UpdateSanityOnSleep(int SleepTime)
 
 void USanityComponent::DecreaseSanity()
 {
-	float DrainMultiplier = 1.0f;
-	if (DayNightCycle)
-	{
-		DrainMultiplier = 24.0f / DayNightCycle->DayDurationMinutes;
-	}
-
-	Sanity = FMath::Clamp(Sanity - ( SanityDrainRate * DrainMultiplier), 0.0f, MaxSanity);
+	Sanity = FMath::Clamp(Sanity - SanityDrainRate, 0.0f, MaxSanity);
 
 	OnSanityChanged.Broadcast(Sanity, MaxSanity);
 
@@ -80,5 +80,17 @@ void USanityComponent::UpdateSanity(float DeltaSanity)
 	if (Sanity <= 0.0f)
 	{
 		OnSanityDepleted.Broadcast();
+	}
+}
+
+void USanityComponent::DrainSanityAtBorder(bool bIsInBorder)
+{
+	if (bIsInBorder)
+	{
+		SanityDrainRate = SanityNormalDrainRate;
+	}
+	else
+	{
+		SanityDrainRate = SanityBorderDrainRate;
 	}
 }

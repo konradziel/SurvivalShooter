@@ -8,6 +8,7 @@
 
 class AEnemy;
 class ADayNightCycle;
+class USphereComponent;
 
 UCLASS()
 class SURVIVALSHOOTER_API AEnemySpawner : public AActor
@@ -21,6 +22,24 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UFUNCTION()
+	void OnSphereOverlap(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult
+	);
+
+	UFUNCTION()
+	void OnSphereEndOverlap(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex
+	);
 
 public:	
 	// Called every frame
@@ -44,15 +63,19 @@ protected:
 
 	ADayNightCycle* DayNightCycle;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Boundary", meta = (AllowPrivateAccess = "true"))
+	USphereComponent* BoundarySphere;
+
 private:
 	FTimerHandle SpawnTimerHandle;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning", meta = (AllowPrivateAccess = "true"))
 	TArray<AEnemy*> SpawnedEnemies;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spawning", meta = (AllowPrivateAccess = "true"))
 	TArray<AEnemy*> PermanentDormantEnemies; 
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning", meta = (AllowPrivateAccess = "true"))
 	int32 CurrentMaxEnemies;
 
 	int32 NextSpawnIndex = 0;

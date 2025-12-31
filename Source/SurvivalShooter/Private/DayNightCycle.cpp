@@ -17,7 +17,7 @@ void ADayNightCycle::BeginPlay()
 {
     Super::BeginPlay();
 
-    DaysToWin = FMath::RandRange(2, 4);
+    DaysToWin = FMath::RandRange(8, 10);
 
     UpdateSunPosition();
 

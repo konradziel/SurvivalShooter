@@ -87,8 +87,7 @@ void AItem::RestoreBeamRotation()
 
 bool AItem::CanBePickedUp() const
 {
-	// TODO: Add conditions
-	return true;
+	return ItemState == EItemState::EIS_OnGround;
 }
 
 void AItem::PickUpItem()

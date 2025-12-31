@@ -84,12 +84,12 @@ void ABed::SleepInBed(AMainCharacter* MainCharacter)
 
 	float CurrentTime = DayNightCycle->GetTimeOfDay();
 	
-	if (CurrentTime > 14.0f && CurrentTime < 20.0f)
+	if (CurrentTime > 13.0f && CurrentTime < 20.0f)
 	{
 		SanityComp->UpdateSanityOnSleep(20.0f - CurrentTime);
 		DayNightCycle->SetTimeOfDay(20.0f);		
 	}
-	else if (CurrentTime >= 6.0f && CurrentTime <= 14.0f)
+	else if (CurrentTime >= 6.0f && CurrentTime <= 13.0f)
 	{
 		SanityComp->UpdateSanityOnSleep(7.0f);
 		DayNightCycle->SetTimeOfDay(CurrentTime + 7.0f);

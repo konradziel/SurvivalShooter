@@ -9,6 +9,9 @@
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Enemy.h"
+#include "Components/SphereComponent.h"
+#include "../MainCharacter.h"
+#include "SanityComponent.h"
 
 // Sets default values
 AEnemySpawner::AEnemySpawner()
@@ -16,6 +19,8 @@ AEnemySpawner::AEnemySpawner()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	BoundarySphere = CreateDefaultSubobject<USphereComponent>(TEXT("BoundarySphere"));
+	BoundarySphere->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -47,6 +52,38 @@ void AEnemySpawner::BeginPlay()
 
 	NextSpawnIndex = SpawnedEnemies.Num();
 	GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &AEnemySpawner::ManageNightSpawning, 2.0f, true);
+
+	if (BoundarySphere)
+	{
+		BoundarySphere->OnComponentBeginOverlap.AddDynamic(this, &AEnemySpawner::OnSphereOverlap);
+		BoundarySphere->OnComponentEndOverlap.AddDynamic(this, &AEnemySpawner::OnSphereEndOverlap);
+	}
+}
+
+void AEnemySpawner::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	AMainCharacter* MainCharacter = Cast<AMainCharacter>(OtherActor);
+	if (MainCharacter)
+	{
+		USanityComponent* SanityComponent = MainCharacter->FindComponentByClass<USanityComponent>();
+		if (SanityComponent)
+		{
+			SanityComponent->DrainSanityAtBorder(true);
+		}
+	}
+}
+
+void AEnemySpawner::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	AMainCharacter* MainCharacter = Cast<AMainCharacter>(OtherActor);
+	if (MainCharacter)
+	{
+		USanityComponent* SanityComponent = MainCharacter->FindComponentByClass<USanityComponent>();
+		if (SanityComponent)
+		{
+			SanityComponent->DrainSanityAtBorder(false);
+		}
+	}
 }
 
 // Called every frame
@@ -189,9 +226,9 @@ FVector AEnemySpawner::GetSpawnLocation(bool bIsPermanentDormant, int32 SpawnInd
 
 	FHitResult HitResult;
 	FVector StartTrace = SpawnPos;
-	StartTrace.Z += 4000.0f;
+	StartTrace.Z += 5000.0f;
 	FVector EndTrace = SpawnPos;
-	EndTrace.Z -= 2000.0f;
+	EndTrace.Z -= 5000.0f;
 
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(this);
