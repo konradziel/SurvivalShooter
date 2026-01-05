@@ -106,10 +106,20 @@ void AItem::PickUpItem()
 	if (AMainCharacter* MainCharacter = Cast<AMainCharacter>(Player))
 	{
 		UEquipmentComponent* EquipmentComponent = MainCharacter->FindComponentByClass<UEquipmentComponent>();
-		if (EquipmentComponent && EquipmentComponent->AddItem(this, Quantity).bSuccess)
+		FPickupResult Result = EquipmentComponent->AddItem(this, Quantity);
+		
+		if (EquipmentComponent && Result.bSuccess)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Pickup successful, calling OnPickup()"));
-			OnPickup();
+			if (Result.QuantityAdded == Quantity)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Pickup successful, calling OnPickup()"));
+				OnPickup();
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Partial pickup: %d of %d added"), Result.QuantityAdded, Quantity);
+				Quantity -= Result.QuantityAdded;
+			}
 		}
 	}
 }

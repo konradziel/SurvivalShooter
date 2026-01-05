@@ -307,7 +307,7 @@ void AMainCharacter::PickupInteractItem()
 	HitItem = Cast<AItem>(HitActor);
 	LastHitItem = Cast<AItem>(LastHitActor);
 
-	if (HitItem && HitItem->CanBePickedUp())
+	if (HitItem && HitActor->Implements<UInteractWidgetInterface>())
 	{
 		EquipActiveSlotItem();
 	}
