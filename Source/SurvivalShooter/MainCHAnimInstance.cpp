@@ -22,6 +22,9 @@ void UMainCHAnimInstance::UpdateAnimProperties(float DeltaTime)
 
 		bIsFalling = MainCharacter->GetCharacterMovement()->IsFalling();
 
+		float VerticalVelocity = MainCharacter->GetVelocity().Z;
+		bIsJumping = bIsFalling && VerticalVelocity > 0.f;
+
 		if (MainCharacter->GetCharacterMovement()->GetCurrentAcceleration().Size() > 0.f)
 		{
 			bIsAccelareting = true;

@@ -38,8 +38,8 @@ void AItemSpawner::CalculateTargets()
 	{
 		int32 MaxEnemies = EnemySpawner->GetCurrentMaxEnemies();
 
-		FoodTargetCount = FMath::Max(1, MaxEnemies / 2);
-		MagazineTargetCount = FMath::Max(1, MaxEnemies / 4);
+		FoodTargetCount = FMath::Max(1, MaxEnemies / 4);
+		MagazineTargetCount = FMath::Max(1, MaxEnemies / 6);
 	}
 }
 
@@ -95,6 +95,7 @@ void AItemSpawner::SpawnItems(TArray<TSubclassOf<AItem>>& ItemClasses, int32 Amo
 
 			if (AItem* NewItem = GetWorld()->SpawnActor<AItem>(ItemClasses[Index], Location, Rotation))
 			{
+				NewItem->Quantity = FMath::RandRange(1, (NewItem->MaxStackQuantity)/2);
 				NewItem->OnItemRecycle.AddDynamic(this, &AItemSpawner::OnItemRecycle);
 			}
 		}
