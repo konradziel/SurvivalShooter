@@ -95,7 +95,7 @@ void AEnemySpawner::Tick(float DeltaTime)
 
 void AEnemySpawner::OnTimeChanged(float TimeOfDay)
 {
-	bool bIsNight = TimeOfDay >= 20.0f || TimeOfDay <= 6.0f;
+	bool bIsNight = TimeOfDay >= 19.0f || TimeOfDay <= 6.0f;
 	bool bIsMorning = TimeOfDay >= 5.0f && TimeOfDay < 6.0f;
 
 	if (bIsMorning)
@@ -163,7 +163,7 @@ void AEnemySpawner::ManageNightSpawning()
 	if (!DayNightCycle || !EnemyClass) return;
 
 	float Time = DayNightCycle->GetTimeOfDay();
-	bool bIsNight = (Time >= 20.0f || Time < 6.0f);
+	bool bIsNight = (Time >= 19.0f || Time < 6.0f);
 
 	for (int32 i = SpawnedEnemies.Num() - 1; i >= 0; i--)
 	{
