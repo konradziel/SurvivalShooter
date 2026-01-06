@@ -8,6 +8,8 @@
 #include "Food.h"
 #include "Magazine.h"
 #include "EnemySpawner.h"
+#include "MyGameInstance.h"
+#include "DayNightCycle.h"
 
 
 // Sets default values
@@ -22,6 +24,38 @@ AItemSpawner::AItemSpawner()
 void AItemSpawner::BeginPlay()
 {
 	Super::BeginPlay();
+
+	UMyGameInstance* GameInstance = Cast<UMyGameInstance>(GetGameInstance());
+
+	if (GameInstance)
+	{
+		switch (GameInstance->GameDifficulty)
+		{
+		case EGameDifficulty::EGD_Easy:
+			ItemMultiplier = EasyItemMultiplier;
+			break;
+		case EGameDifficulty::EGD_Normal:
+			ItemMultiplier = NormalItemMultiplier;
+			break;
+		case EGameDifficulty::EGD_Hard:
+			ItemMultiplier = HardItemMultiplier;
+			break;
+		}
+	}
+	
+	TArray<AActor*> FoundActors;
+
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADayNightCycle::StaticClass(), FoundActors);
+
+	if (FoundActors.Num() > 0)
+	{
+		DayNightCycle = Cast<ADayNightCycle>(FoundActors[0]);
+	}
+
+	if (DayNightCycle)
+	{
+		DayNightCycle->OnDayChanged.AddDynamic(this, &AItemSpawner::OnDayChanged);
+	}
 
 	CalculateTargets();
 	SpawnInitialItems();
@@ -38,8 +72,9 @@ void AItemSpawner::CalculateTargets()
 	{
 		int32 MaxEnemies = EnemySpawner->GetCurrentMaxEnemies();
 
-		FoodTargetCount = FMath::Max(1, MaxEnemies / 4);
-		MagazineTargetCount = FMath::Max(1, MaxEnemies / 6);
+		FoodTargetCount = FMath::Max(1, MaxEnemies / 2) * ItemMultiplier;
+		MagazineTargetCount = FMath::Max(1, MaxEnemies / 4) * ItemMultiplier;
+		UE_LOG(LogTemp, Warning, TEXT("Item Spawner Targets - Food: %d, Magazines: %d"), FoodTargetCount, MagazineTargetCount);
 	}
 }
 
@@ -164,4 +199,10 @@ void AItemSpawner::RespawnRecycledItem(AItem* ItemInstance)
 
 	ItemInstance->SetActorLocationAndRotation(NewLoc, NewRot);
 	ItemInstance->ResetItem();
+}
+
+void AItemSpawner::OnDayChanged(int32 NewDay)
+{
+	CalculateTargets();
+	SpawnInitialItems();
 }

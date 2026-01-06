@@ -80,6 +80,15 @@ private:
 	float SunPitch = 0.0f;
 	float MoonPitch = 0.0f;
 
+	int32 EasyMinDaysToWin = 4;
+	int32 EasyMaxDaysToWin = 6;
+
+	int32 NormalMinDaysToWin = 8;
+	int32 NormalMaxDaysToWin = 10;
+
+	int32 HardMinDaysToWin = 13;
+	int32 HardMaxDaysToWin = 15;
+
 public:
 	FORCEINLINE float GetTimeOfDay() const { return TimeOfDay; };
 	FORCEINLINE int32 GetDaysPassed() const { return DaysPassed; };

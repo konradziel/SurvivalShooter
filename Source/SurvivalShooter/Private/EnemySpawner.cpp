@@ -12,6 +12,7 @@
 #include "Components/SphereComponent.h"
 #include "../MainCharacter.h"
 #include "SanityComponent.h"
+#include "MyGameInstance.h"
 
 // Sets default values
 AEnemySpawner::AEnemySpawner()
@@ -28,6 +29,24 @@ void AEnemySpawner::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	UMyGameInstance* GameInstance = Cast<UMyGameInstance>(GetGameInstance());
+
+	if (GameInstance)
+	{
+		switch (GameInstance->GameDifficulty)
+		{
+		case EGameDifficulty::EGD_Easy:
+			DifficultyMultiplier = EasyEnemyMultiplier;
+			break;
+		case EGameDifficulty::EGD_Normal:
+			DifficultyMultiplier = NormalEnemyMultiplier;
+			break;
+		case EGameDifficulty::EGD_Hard:
+			DifficultyMultiplier = HardEnemyMultiplier;
+			break;
+		}
+	}
+
 	TArray<AActor*> FoundActors;
 
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADayNightCycle::StaticClass(), FoundActors);
@@ -256,7 +275,9 @@ FVector AEnemySpawner::GetSpawnLocation(bool bIsPermanentDormant, int32 SpawnInd
 
 void AEnemySpawner::UpdateDifficulty(int32 DayCount)
 {
-	CurrentMaxEnemies = BaseMaxEnemies + FMath::FloorToInt(DayCount * DifficultyScaling);
+	CurrentMaxEnemies = BaseMaxEnemies + FMath::FloorToInt(DayCount * DifficultyScaling * DifficultyMultiplier);
+	UE_LOG(LogTemp, Log, TEXT("DifficultyMultiplier: %f"), DifficultyMultiplier);
+	UE_LOG(LogTemp, Log, TEXT("Enemy Spawner - Day %d: Updated Max Enemies to %d"), DayCount, CurrentMaxEnemies);
 }
 
 void AEnemySpawner::WakeDormantEnemies()
@@ -297,6 +318,7 @@ void AEnemySpawner::SetEnemyDormant(AEnemy* Enemy, bool bIsDormant)
 		if (Enemy->GetCharacterMovement())
 		{
 			Enemy->GetCharacterMovement()->DisableMovement();
+			Enemy->GetCharacterMovement()->SetComponentTickEnabled(false);
 		}
 	}
 	else
@@ -313,7 +335,7 @@ void AEnemySpawner::SetEnemyDormant(AEnemy* Enemy, bool bIsDormant)
 		{
 			Enemy->GetCharacterMovement()->SetComponentTickEnabled(true);
 			Enemy->GetCharacterMovement()->Activate();
-			Enemy->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+			Enemy->GetCharacterMovement()->SetMovementMode(MOVE_NavWalking);
 		}
 	}
 }

@@ -53,13 +53,13 @@ protected:
 	float SpawnRadius = 2000.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning", meta = (AllowPrivateAccess = "true"))
-	int32 PermanentDormantCount = 72;
+	int32 PermanentDormantCount = 144;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning", meta = (AllowPrivateAccess = "true"))
-	int32 BaseMaxEnemies = 5;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spawning", meta = (AllowPrivateAccess = "true"))
+	int32 BaseMaxEnemies = 15;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning", meta = (AllowPrivateAccess = "true"))
-	float DifficultyScaling = 10.0f;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spawning", meta = (AllowPrivateAccess = "true"))
+	float DifficultyScaling = 5.0f;
 
 	ADayNightCycle* DayNightCycle;
 
@@ -98,6 +98,12 @@ private:
 	void SetEnemyDormant(AEnemy* Enemy, bool bIsDormant);
 
 	void TriggerFlee();
+
+	float DifficultyMultiplier;
+
+	float EasyEnemyMultiplier = 0.5f;
+	float NormalEnemyMultiplier = 1.0f;
+	float HardEnemyMultiplier = 1.5f;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Spawning")

@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "ItemSpawner.generated.h"
 
+class ADayNightCycle;
+
 UCLASS()
 class SURVIVALSHOOTER_API AItemSpawner : public AActor
 {
@@ -34,9 +36,17 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
 	float RespawnDelay = 30.0f;
 
+	ADayNightCycle* DayNightCycle;
+
 private:	
 	int32 FoodTargetCount;
 	int32 MagazineTargetCount;
+
+	float ItemMultiplier;
+
+	float EasyItemMultiplier = 1.5f;
+	float NormalItemMultiplier = 1.0f;
+	float HardItemMultiplier = 0.75f;
 
 	void CalculateTargets();
 	void SpawnInitialItems();
@@ -50,4 +60,7 @@ private:
 
 	UFUNCTION()
 	void RespawnRecycledItem(AItem* ItemInstance);
+
+	UFUNCTION()
+	void OnDayChanged(int32 NewDayCount);
 };

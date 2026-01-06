@@ -25,7 +25,7 @@ AEnemy::AEnemy()
 	AttackRight = TEXT("AttackRight");
 	AttackBoth = TEXT("AttackBoth");
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
 
@@ -64,14 +64,17 @@ void AEnemy::BeginPlay()
 	GetMesh()->SetGenerateOverlapEvents(false);
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
+	GetCapsuleComponent()->SetGenerateOverlapEvents(false);
 
 	if (HealthComponent)
 	{
 		HealthComponent->OnHealthDepleted.AddDynamic(this, &AEnemy::Die);
 	}
-
-	GetCharacterMovement()->MaxWalkSpeed = 400.f; 
+	
+	GetCharacterMovement()->MaxWalkSpeed = 400.f;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->SetComponentTickInterval(0.033f);
+
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
@@ -90,13 +93,6 @@ void AEnemy::BeginPlay()
 	LeftHandBox->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
 	LeftHandBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	LeftHandBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
-}
-
-// Called every frame
-void AEnemy::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
 }
 
 // Called to bind functionality to input

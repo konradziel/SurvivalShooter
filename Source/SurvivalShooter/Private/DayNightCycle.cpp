@@ -5,6 +5,7 @@
 #include "DayNightCycle.h"
 #include "Components/LightComponent.h"
 #include "ClockWidget.h"
+#include "MyGameInstance.h"
 
 // Sets default values
 ADayNightCycle::ADayNightCycle()
@@ -16,8 +17,24 @@ ADayNightCycle::ADayNightCycle()
 void ADayNightCycle::BeginPlay()
 {
     Super::BeginPlay();
+    
+    UMyGameInstance* GameInstance = Cast<UMyGameInstance>(GetGameInstance());
 
-    DaysToWin = FMath::RandRange(8, 10);
+    if (GameInstance)
+    {
+        switch (GameInstance->GameDifficulty)
+        {
+        case EGameDifficulty::EGD_Easy:
+            DaysToWin = FMath::RandRange(EasyMinDaysToWin, EasyMaxDaysToWin);
+            break;
+        case EGameDifficulty::EGD_Normal:
+            DaysToWin = FMath::RandRange(NormalMinDaysToWin, NormalMaxDaysToWin);
+            break;
+        case EGameDifficulty::EGD_Hard:
+            DaysToWin = FMath::RandRange(HardMinDaysToWin, HardMaxDaysToWin);
+            break;
+        }
+    }
 
     UpdateSunPosition();
 

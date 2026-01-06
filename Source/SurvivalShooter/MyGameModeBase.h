@@ -13,5 +13,4 @@ UCLASS()
 class SURVIVALSHOOTER_API AMyGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
-	
 };
