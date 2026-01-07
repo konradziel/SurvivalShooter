@@ -307,13 +307,13 @@ void AMainCharacter::PickupInteractItem()
 	HitItem = Cast<AItem>(HitActor);
 	LastHitItem = Cast<AItem>(LastHitActor);
 
-	if (HitItem && HitActor->Implements<UInteractWidgetInterface>())
-	{
-		EquipActiveSlotItem();
-	}
-	else if (EquippedItem && EquippedItem->CanBeUsed())
+	if (EquippedItem && EquippedItem->CanBeUsed())
 	{
 		UseEquippedItem();
+	}	
+	else if (HitItem && HitActor->Implements<UInteractWidgetInterface>())
+	{
+		EquipActiveSlotItem();
 	}
 }
 
