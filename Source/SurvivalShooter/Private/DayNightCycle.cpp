@@ -134,7 +134,7 @@ void ADayNightCycle::UpdateSunPosition()
 
         if (ULightComponent* LightComp = SunLight->GetLightComponent())
         {
-            LightComp->SetIntensity(SunIntensity * 3.0f);
+            LightComp->SetIntensity(SunIntensity * 2.0f);
         }
 
         if (MoonLight)
