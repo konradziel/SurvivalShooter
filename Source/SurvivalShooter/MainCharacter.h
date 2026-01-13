@@ -161,6 +161,9 @@ private:
 
 	FTimerHandle FireTimerHandle;
 	void FireWeapon();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
+	class USoundCue* HitSound;
 	
 public:
 	/** Returns CameraBoom **/

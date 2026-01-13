@@ -394,13 +394,7 @@ void AMainCharacter::DropActiveSlotItem()
 
 	EquipmentComponent->RemoveItem(ActiveIndex, Slot.Quantity);
 
-	FVector CharacterLocation = GetActorLocation();
-	FRotator CharacterRotation = GetActorRotation();
-
-	FVector ForwardVector = CharacterRotation.Vector();
-	FVector DropLocation = CharacterLocation + (ForwardVector * 50.0f);
-
-	ItemToDrop->OnDropped(DropLocation);
+	ItemToDrop->OnDropped();
 }
 
 void AMainCharacter::HandleActiveSlotChanged(int32 ActiveIndex)
@@ -595,6 +589,11 @@ bool AMainCharacter::IsWeaponEquipped() const
 float AMainCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	if (HitSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, HitSound, GetActorLocation());
+	}
 
 	if (HealthComponent && ActualDamage > 0.f)
 	{

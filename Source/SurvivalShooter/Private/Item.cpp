@@ -173,13 +173,11 @@ void AItem::OnEquipped(AMainCharacter* OwnerCharacter)
 	SetItemProperties(ItemState);
 }
 
-void AItem::OnDropped(const FVector& DropLocation)
+void AItem::OnDropped()
 {
-	SetActorLocation(DropLocation);
-
-	// Update state to OnGround
 	ItemState = EItemState::EIS_OnGround;
 	SetItemProperties(ItemState);
+
 }
 
 void AItem::SetItemProperties(EItemState State)

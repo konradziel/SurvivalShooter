@@ -100,7 +100,7 @@ public:
     // Called when the item is equipped by a character
     virtual void OnEquipped(AMainCharacter* OwnerCharacter);
 
-	virtual void OnDropped(const FVector& DropLocation);
+	virtual void OnDropped();
 
 	UFUNCTION(BlueprintCallable)
 	void DestroySelf();

@@ -57,11 +57,16 @@ void AEnemy::PossessedBy(AController* NewController)
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	GetMesh()->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetMesh()->SetGenerateOverlapEvents(false);
+	GetMesh()->SetComponentTickInterval(1/30);
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
 	GetCapsuleComponent()->SetGenerateOverlapEvents(false);
@@ -73,7 +78,7 @@ void AEnemy::BeginPlay()
 	
 	GetCharacterMovement()->MaxWalkSpeed = 400.f;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
-	GetCharacterMovement()->SetComponentTickInterval(0.033f);
+	GetCharacterMovement()->SetComponentTickInterval(1/60);
 
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationPitch = false;
@@ -81,6 +86,12 @@ void AEnemy::BeginPlay()
 
 	AttackRangeSphere->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::AttackRangeOverlap);
 	AttackRangeSphere->OnComponentEndOverlap.AddDynamic(this, &AEnemy::AttackRangeEndOverlap);
+
+	AttackRangeSphere->SetGenerateOverlapEvents(true);
+	AttackRangeSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	AttackRangeSphere->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+	AttackRangeSphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	AttackRangeSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 
 	RightHandBox->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::OnRightHandOverlap);
 	LeftHandBox->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::OnLeftHandOverlap);

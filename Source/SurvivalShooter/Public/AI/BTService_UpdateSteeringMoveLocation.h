@@ -29,7 +29,7 @@ protected:
 
 	// Desired ring radius around the target
 	UPROPERTY(EditAnywhere, Category = "Steering", meta = (ClampMin = "50.0"))
-	float DesiredRadius = 60.0f;
+	float DesiredRadius = 120.0f;
 
 	// Above this distance, Seek dominates and Orbit is reduced to 0
 	UPROPERTY(EditAnywhere, Category = "Steering", meta = (ClampMin = "1000.0"))
